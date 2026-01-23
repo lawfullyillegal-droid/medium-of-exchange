@@ -17,6 +17,14 @@
         .official-seal { text-align: center; margin: 0 auto 30px auto; }
         .official-seal img { width: 220px; height: auto; display: block; margin: 0 auto; }
         .seal-description { font-size: 11px; font-style: italic; margin-top: 10px; color: #333; }
+        .check-format { display: grid; grid-template-columns: 30px 1fr 30px; gap: 0; margin: 20px 0; }
+        .check-left-line { border-right: 2px solid #0066cc; }
+        .check-content { padding: 0 20px; }
+        .check-right-line { border-left: 2px solid #0066cc; }
+        .check-field { display: flex; justify-content: space-between; align-items: baseline; margin: 15px 0; padding: 8px 0; border-bottom: 1px solid #ccc; }
+        .check-field label { font-weight: bold; margin-right: 15px; }
+        .check-field .value { flex: 1; text-align: right; }
+        .amount-box { border: 2px solid #0066cc; padding: 8px 15px; display: inline-block; background: #f0f8ff; font-weight: bold; font-size: 18px; }
         .print-btn { background: #0366d6; margin-top: 20px; }
         .indorsement-section { margin-top: 60px; border-top: 2px solid #000; padding-top: 20px; }
         .reservation { margin-top: 40px; font-size: 11px; border: 1px solid #000; padding: 15px; background: #f5f5f5; }
@@ -60,23 +68,40 @@
         
         <div class="note-header">PROMISSORY NOTE</div>
         
-        <p><strong>Amount:</strong> $<span id="out-amount"></span> USD</p>
-        <p><strong>Date:</strong> <span id="out-date"></span></p>
-        <p><strong>Place:</strong> Golden Valley, Arizona</p>
-        
-        <div style="margin: 30px 0; padding: 20px; border: 1px solid #000; background: #fafafa;">
-            <p style="text-align: justify; margin: 0;">
-                FOR VALUE RECEIVED, the undersigned, <strong>Ryle Family Nation Trust</strong>, a lawfully established trust operating as a Non-Profit Organization (the "Maker"), 
-                with principal place of business at Golden Valley, Arizona, hereby promises to pay to <strong><span id="out-payee">BEARER</span></strong><span id="out-payee-addr"></span> 
-                the principal sum of <strong><span id="out-amount-text"></span> United States Dollars ($<span id="out-amount-num"></span>)</strong>.
-            </p>
+        <div class="check-format">
+            <div class="check-left-line"></div>
+            <div class="check-content">
+                <div class="check-field">
+                    <label>Date:</label>
+                    <span class="value"><span id="out-date"></span></span>
+                </div>
+                
+                <div class="check-field">
+                    <label>Amount:</label>
+                    <span class="value"><span class="amount-box">$<span id="out-amount"></span> USD</span></span>
+                </div>
+                
+                <div class="check-field">
+                    <label>Place:</label>
+                    <span class="value">Golden Valley, Arizona</span>
+                </div>
+                
+                <div style="margin: 30px 0; padding: 20px; border: 1px solid #000; background: #fafafa;">
+                    <p style="text-align: justify; margin: 0;">
+                        FOR VALUE RECEIVED, the undersigned, <strong>Ryle Family Nation Trust</strong>, a lawfully established trust operating as a Non-Profit Organization (the "Maker"), 
+                        with principal place of business at Golden Valley, Arizona, hereby promises to pay to <strong><span id="out-payee">BEARER</span></strong><span id="out-payee-addr"></span> 
+                        the principal sum of <strong><span id="out-amount-text"></span> United States Dollars ($<span id="out-amount-num"></span>)</strong>.
+                    </p>
+                </div>
+                
+                <p style="font-size: 12px; text-align: justify;">
+                    This note is a negotiable instrument governed by the Uniform Commercial Code (UCC) Article 3. 
+                    Payment shall be made in lawful money of the United States pursuant to 12 USC §411. 
+                    This note is payable to bearer and may be transferred by delivery pursuant to UCC §3-201.
+                </p>
+            </div>
+            <div class="check-right-line"></div>
         </div>
-        
-        <p style="font-size: 12px; text-align: justify;">
-            This note is a negotiable instrument governed by the Uniform Commercial Code (UCC) Article 3. 
-            Payment shall be made in lawful money of the United States pursuant to 12 USC §411. 
-            This note is payable to bearer and may be transferred by delivery pursuant to UCC §3-201.
-        </p>
         
         <div style="margin-top: 50px;">
             <p>__________________________________________<br>
