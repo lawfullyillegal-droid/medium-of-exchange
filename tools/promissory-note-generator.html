@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Promissory Note Generator - Ryle Family Nation</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; margin: 40px; line-height: 1.6; }
+        .container { max-width: 800px; margin: auto; border: 1px solid #ccc; padding: 30px; border-radius: 8px; background: #f9f9f9; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { padding: 10px 20px; background: #2ea44f; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #2c974b; }
+        #note-output { margin-top: 30px; padding: 40px; border: 2px solid #000; background: white; display: none; }
+        .note-header { text-align: center; font-weight: bold; text-decoration: underline; font-size: 20px; margin-bottom: 20px; }
+        .print-btn { background: #0366d6; margin-top: 10px; }
+        @media print {
+            .no-print { display: none; }
+            #note-output { display: block; border: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container no-print">
+        <h1>Promissory Note Generator</h1>
+        <p><i>As an Ambassador of the Ryle Family Nation, use this tool to create valid negotiable instruments.</i></p>
+        
+        <div class="form-group">
+            <label>Principal Amount ($):</label>
+            <input type="number" id="amount" placeholder="e.g. 1000.00">
+        </div>
+        <div class="form-group">
+            <label>Maker (Debtor) Name:</label>
+            <input type="text" id="makerName" placeholder="Full Legal Name">
+        </div>
+        <div class="form-group">
+            <label>Maker Address:</label>
+            <textarea id="makerAddress" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Payee (Creditor) Name:</label>
+            <input type="text" id="payeeName" placeholder="Full Legal Name">
+        </div>
+        <div class="form-group">
+            <label>Payee Address:</label>
+            <textarea id="payeeAddress" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Date of Issue:</label>
+            <input type="date" id="issueDate">
+        </div>
+        <div class="form-group">
+            <label>Place of Issue:</label>
+            <input type="text" id="place" placeholder="City, State/Province">
+        </div>
+        
+        <button onclick="generateNote()">Generate Note</button>
+    </div>
+
+    <div id="note-output">
+        <div class="note-header">PROMISSORY NOTE</div>
+        <p><strong>Amount:</strong> $<span id="out-amount"></span></p>
+        <p><strong>Date:</strong> <span id="out-date"></span></p>
+        <p><strong>Place:</strong> <span id="out-place"></span></p>
+        
+        <p>
+            FOR VALUE RECEIVED, the undersigned, <strong><span id="out-maker"></span></strong> (the "Maker"), 
+            residing at <span id="out-maker-addr"></span>, hereby promises to pay to the order of 
+            <strong><span id="out-payee"></span></strong> (the "Payee"), residing at <span id="out-payee-addr"></span>, 
+            the principal sum of <strong><span id="out-amount-text"></span> Dollars ($<span id="out-amount-num"></span>)</strong>.
+        </p>
+        
+        <p>
+            This note is a negotiable instrument governed by the Uniform Commercial Code (UCC) Article 3. 
+            Payment shall be made in lawful money of the United States.
+        </p>
+        
+        <div style="margin-top: 50px;">
+            <p>__________________________________________<br>
+            <strong><span id="sig-maker"></span></strong> (Maker Signature)</p>
+        </div>
+        
+        <button class="no-print print-btn" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+    <script>
+        function numberToWords(number) {
+            // Simple helper for demonstration - in production use a more robust library
+            return number.toLocaleString() + ' and 00/100';
+        }
+
+        function generateNote() {
+            const amount = document.getElementById('amount').value;
+            const maker = document.getElementById('makerName').value;
+            const makerAddr = document.getElementById('makerAddress').value;
+            const payee = document.getElementById('payeeName').value;
+            const payeeAddr = document.getElementById('payeeAddress').value;
+            const date = document.getElementById('issueDate').value;
+            const place = document.getElementById('place').value;
+
+            document.getElementById('out-amount').innerText = amount;
+            document.getElementById('out-amount-num').innerText = amount;
+            document.getElementById('out-amount-text').innerText = amount; // Simple pass through
+            document.getElementById('out-date').innerText = date;
+            document.getElementById('out-place').innerText = place;
+            document.getElementById('out-maker').innerText = maker;
+            document.getElementById('out-maker-addr').innerText = makerAddr;
+            document.getElementById('out-payee').innerText = payee;
+            document.getElementById('out-payee-addr').innerText = payeeAddr;
+            document.getElementById('sig-maker').innerText = maker;
+
+            document.getElementById('note-output').style.display = 'block';
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+    </script>
+</body>
+</html>
