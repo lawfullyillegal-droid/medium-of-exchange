@@ -14,6 +14,7 @@
         #note-output { margin-top: 30px; padding: 40px; border: 2px solid #000; background: white; display: none; }
         .note-header { text-align: center; font-weight: bold; text-decoration: underline; font-size: 20px; margin-bottom: 20px; }
         .print-btn { background: #0366d6; margin-top: 10px; }
+        .endorsement-section { margin-top: 60px; border-top: 2px solid #000; padding-top: 20px; }
         @media print {
             .no-print { display: none; }
             #note-output { display: block; border: none; padding: 0; }
@@ -38,14 +39,6 @@
             <textarea id="makerAddress" rows="2"></textarea>
         </div>
         <div class="form-group">
-            <label>Payee (Creditor) Name:</label>
-            <input type="text" id="payeeName" placeholder="Full Legal Name">
-        </div>
-        <div class="form-group">
-            <label>Payee Address:</label>
-            <textarea id="payeeAddress" rows="2"></textarea>
-        </div>
-        <div class="form-group">
             <label>Date of Issue:</label>
             <input type="date" id="issueDate">
         </div>
@@ -65,14 +58,13 @@
         
         <p>
             FOR VALUE RECEIVED, the undersigned, <strong><span id="out-maker"></span></strong> (the "Maker"), 
-            residing at <span id="out-maker-addr"></span>, hereby promises to pay to the order of 
-            <strong><span id="out-payee"></span></strong> (the "Payee"), residing at <span id="out-payee-addr"></span>, 
+            residing at <span id="out-maker-addr"></span>, hereby promises to pay to <strong>BEARER</strong> 
             the principal sum of <strong><span id="out-amount-text"></span> Dollars ($<span id="out-amount-num"></span>)</strong>.
         </p>
         
         <p>
             This note is a negotiable instrument governed by the Uniform Commercial Code (UCC) Article 3. 
-            Payment shall be made in lawful money of the United States.
+            Payment shall be made in lawful money of the United States. This note is payable to bearer and may be transferred by delivery.
         </p>
         
         <div style="margin-top: 50px;">
@@ -80,33 +72,36 @@
             <strong><span id="sig-maker"></span></strong> (Maker Signature)</p>
         </div>
         
+        <div class="endorsement-section">
+            <p><strong>ENDORSEMENTS</strong></p>
+            <p>__________________________________________</p>
+            <p>Signature of Endorser</p>
+            <br>
+            <p>__________________________________________</p>
+            <p>Signature of Endorser</p>
+            <br>
+            <p>__________________________________________</p>
+            <p>Signature of Endorser</p>
+        </div>
+        
         <button class="no-print print-btn" onclick="window.print()">Print / Save as PDF</button>
     </div>
 
     <script>
-        function numberToWords(number) {
-            // Simple helper for demonstration - in production use a more robust library
-            return number.toLocaleString() + ' and 00/100';
-        }
-
         function generateNote() {
             const amount = document.getElementById('amount').value;
             const maker = document.getElementById('makerName').value;
             const makerAddr = document.getElementById('makerAddress').value;
-            const payee = document.getElementById('payeeName').value;
-            const payeeAddr = document.getElementById('payeeAddress').value;
             const date = document.getElementById('issueDate').value;
             const place = document.getElementById('place').value;
 
             document.getElementById('out-amount').innerText = amount;
             document.getElementById('out-amount-num').innerText = amount;
-            document.getElementById('out-amount-text').innerText = amount; // Simple pass through
+            document.getElementById('out-amount-text').innerText = amount;
             document.getElementById('out-date').innerText = date;
             document.getElementById('out-place').innerText = place;
             document.getElementById('out-maker').innerText = maker;
             document.getElementById('out-maker-addr').innerText = makerAddr;
-            document.getElementById('out-payee').innerText = payee;
-            document.getElementById('out-payee-addr').innerText = payeeAddr;
             document.getElementById('sig-maker').innerText = maker;
 
             document.getElementById('note-output').style.display = 'block';
