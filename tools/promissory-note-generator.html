@@ -14,7 +14,8 @@
         #note-output { margin-top: 30px; padding: 40px; border: 2px solid #000; background: white; display: none; }
         .note-header { text-align: center; font-weight: bold; text-decoration: underline; font-size: 20px; margin-bottom: 20px; }
         .print-btn { background: #0366d6; margin-top: 10px; }
-        .endorsement-section { margin-top: 60px; border-top: 2px solid #000; padding-top: 20px; }
+        .indorsement-section { margin-top: 60px; border-top: 2px solid #000; padding-top: 20px; }
+        .reservation { margin-top: 40px; font-size: 11px; border: 1px solid #000; padding: 15px; background: #f5f5f5; }
         @media print {
             .no-print { display: none; }
             #note-output { display: block; border: none; padding: 0; }
@@ -64,7 +65,8 @@
         
         <p>
             This note is a negotiable instrument governed by the Uniform Commercial Code (UCC) Article 3. 
-            Payment shall be made in lawful money of the United States. This note is payable to bearer and may be transferred by delivery.
+            Payment shall be made in lawful money of the United States pursuant to 12 USC §411. 
+            This note is payable to bearer and may be transferred by delivery pursuant to UCC §3-201.
         </p>
         
         <div style="margin-top: 50px;">
@@ -72,16 +74,35 @@
             <strong><span id="sig-maker"></span></strong> (Maker Signature)</p>
         </div>
         
-        <div class="endorsement-section">
-            <p><strong>ENDORSEMENTS</strong></p>
-            <p>__________________________________________</p>
-            <p>Signature of Endorser</p>
+        <div class="indorsement-section">
+            <p><strong>INDORSEMENTS</strong></p>
+            <p style="font-size: 11px; font-style: italic;">Pursuant to UCC §3-204, indorsement transfers the instrument</p>
             <br>
             <p>__________________________________________</p>
-            <p>Signature of Endorser</p>
+            <p>Signature of Indorser</p>
+            <p>Date: _______________</p>
             <br>
             <p>__________________________________________</p>
-            <p>Signature of Endorser</p>
+            <p>Signature of Indorser</p>
+            <p>Date: _______________</p>
+            <br>
+            <p>__________________________________________</p>
+            <p>Signature of Indorser</p>
+            <p>Date: _______________</p>
+        </div>
+        
+        <div class="reservation">
+            <p><strong>RESERVATION OF RIGHTS</strong></p>
+            <p>All rights are reserved under UCC §1-308 (formerly UCC §1-207). The Maker reserves all Common Law and Constitutional Rights, including but not limited to:</p>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Rights under the First, Fourth, Fifth, Ninth, and Tenth Amendments to the U.S. Constitution</li>
+                <li>Rights to due process and equal protection under law (14th Amendment)</li>
+                <li>Rights under 15 USC §1692 (Fair Debt Collection Practices Act)</li>
+                <li>Rights under 12 USC §411 regarding lawful money redemption</li>
+                <li>Rights under UCC Article 3 regarding negotiable instruments</li>
+                <li>All inherent, inalienable, natural, and God-given rights</li>
+            </ul>
+            <p>Without Prejudice - UCC §1-308. The use of this instrument does not constitute a waiver of any rights, remedies, or defenses available under law.</p>
         </div>
         
         <button class="no-print print-btn" onclick="window.print()">Print / Save as PDF</button>
