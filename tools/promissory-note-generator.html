@@ -221,6 +221,20 @@
             <p>__________________________________________<br>
             <strong><span id="sig-maker"></span></strong> (<span id="sig-role">Maker</span> Signature)</p>
         </div>
+
+                    <div style="margin-top: 30px; border-top: 2px solid #000; padding-top: 20px;">
+                                        <p><strong>ENDORSEMENTS</strong></p>
+
+                                        <p><strong>Drawer/Issuer Endorsement:</strong></p>
+                                        <p>_____________________________________________<br>
+                                                            <strong>${esc.maker}</strong> (Drawer Signature)</p>
+                                        <p style="margin-top: 15px;">[L.S.] <i>(Locus Sigilli - Place of Seal)</i></p>
+
+                                        <p style="margin-top: 30px;"><strong>Drawee/Payor Endorsement:</strong></p>
+                                        <p>_____________________________________________<br>
+                                                            <strong>${esc.drawee}</strong> (Drawee/Payor Signature)</p>
+                                        <p style="margin-top: 15px;">[L.S.] <i>(Locus Sigilli - Place of Seal)</i></p>
+                                    </div>
         
         <div class="definitions">
             <p><strong>DEFINITIONS AND LEGAL REFERENCES</strong></p>
@@ -420,7 +434,7 @@
                 body = `
                     <p>
                         <strong>FOR VALUE RECEIVED</strong>, the undersigned, <strong>${esc.maker}</strong> (the "Maker"), 
-                        residing at ${esc.makerAddr}, hereby promises to pay to the order of 
+                        residing at ${esc.makerAddr}, hereby promises to PAYABLE TO BEARER of 
                         <strong>${esc.payee}</strong> (the "Payee"), residing at ${esc.payeeAddr}, 
                         the principal sum of <strong>${esc.amountText} Dollars ($${esc.amount})</strong>.
                     </p>
@@ -440,7 +454,7 @@
             } else if (type === 'check') {
                 body = `
                     <p>
-                        <strong>PAY TO THE ORDER OF:</strong> <strong>${esc.payee}</strong>
+                        <strong>PAYABLE TO BEARER OF:</strong> <strong>${esc.payee}</strong>
                     </p>
                     
                     <p>
@@ -473,7 +487,7 @@
                 body = `
                     <p>
                         <strong>${isDemand ? 'AT SIGHT' : 'FOR VALUE RECEIVED'}</strong>, 
-                        pay to the order of <strong>${esc.payee}</strong> (the "Payee"), 
+                        PAYABLE TO BEARER of <strong>${esc.payee}</strong> (the "Payee"), 
                         residing at ${esc.payeeAddr}, 
                         the sum of <strong>${esc.amountText} Dollars ($${esc.amount})</strong>.
                     </p>
