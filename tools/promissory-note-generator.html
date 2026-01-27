@@ -101,10 +101,10 @@
             <div>
                 <label>Quick Amount Selection:</label>
                 <div class="preset-buttons">
-                    <button type="button" class="preset-btn" onclick="setPresetAmount(1000)">$1,000</button>
-                    <button type="button" class="preset-btn" onclick="setPresetAmount(5000)">$5,000</button>
-                    <button type="button" class="preset-btn" onclick="setPresetAmount(10000)">$10,000</button>
-                    <button type="button" class="preset-btn" onclick="setCustomAmount()">Custom</button>
+                    <button type="button" class="preset-btn" onclick="setPresetAmount(1000, this)">$1,000</button>
+                    <button type="button" class="preset-btn" onclick="setPresetAmount(5000, this)">$5,000</button>
+                    <button type="button" class="preset-btn" onclick="setPresetAmount(10000, this)">$10,000</button>
+                    <button type="button" class="preset-btn" onclick="setCustomAmount(this)">Custom</button>
                 </div>
             </div>
             
@@ -268,20 +268,18 @@
         }
         
         // Quick Options Functions
-        let currentPresetBtn = null;
         
-        function setPresetAmount(amount) {
+        function setPresetAmount(amount, btnElement) {
             document.getElementById('amount').value = amount.toFixed(2);
             
             // Update button states
             document.querySelectorAll('.preset-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
-            currentPresetBtn = event.target;
+            btnElement.classList.add('active');
         }
         
-        function setCustomAmount() {
+        function setCustomAmount(btnElement) {
             // Focus on amount input for custom entry
             const amountInput = document.getElementById('amount');
             amountInput.focus();
@@ -290,11 +288,12 @@
             document.querySelectorAll('.preset-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            btnElement.classList.add('active');
         }
         
         function toggleAutoFill() {
             const autoFillEnabled = document.getElementById('autoFillToggle').checked;
+            const DEFAULT_DEALERSHIP_AMOUNT = '25000.00';
             
             if (autoFillEnabled) {
                 // Auto-fill with dealership scenario placeholders
@@ -302,7 +301,7 @@
                 updateFormFields();
                 
                 if (!document.getElementById('amount').value) {
-                    document.getElementById('amount').value = '25000.00';
+                    document.getElementById('amount').value = DEFAULT_DEALERSHIP_AMOUNT;
                 }
                 
                 document.getElementById('makerName').value = '[Buyer Name]';
