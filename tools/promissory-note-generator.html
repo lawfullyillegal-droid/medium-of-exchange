@@ -2,18 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Promissory Note Generator - Ryle Family Nation</title>
+    <title>UCC Article 3 Negotiable Instrument Generator - Ryle Family Nation</title>
     <style>
         body { font-family: 'Times New Roman', serif; margin: 40px; line-height: 1.6; }
         .container { max-width: 800px; margin: auto; border: 1px solid #ccc; padding: 30px; border-radius: 8px; background: #f9f9f9; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; }
-        input, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
         button { padding: 10px 20px; background: #2ea44f; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
         button:hover { background: #2c974b; }
         #note-output { margin-top: 30px; padding: 40px; border: 2px solid #000; background: white; display: none; }
         .note-header { text-align: center; font-weight: bold; text-decoration: underline; font-size: 20px; margin-bottom: 20px; }
         .print-btn { background: #0366d6; margin-top: 10px; }
+        .hidden { display: none; }
+        .legal-reference { font-size: 11px; font-style: italic; color: #666; margin-top: 5px; }
+        .seal { text-align: right; font-size: 14px; margin-top: 30px; }
+        .definitions { font-size: 12px; border-top: 1px solid #ccc; margin-top: 30px; padding-top: 20px; }
+        .definition-term { font-weight: bold; }
         @media print {
             .no-print { display: none; }
             #note-output { display: block; border: none; padding: 0; }
@@ -22,24 +27,56 @@
 </head>
 <body>
     <div class="container no-print">
-        <h1>Promissory Note Generator</h1>
-        <p><i>As an Ambassador of the Ryle Family Nation, use this tool to create valid negotiable instruments.</i></p>
+        <h1>UCC Article 3 Negotiable Instrument Generator</h1>
+        <p><i>As an Ambassador of the Ryle Family Nation, use this tool to create valid negotiable instruments under the Uniform Commercial Code Article 3.</i></p>
+        
+        <div class="form-group">
+            <label>Instrument Type:</label>
+            <select id="instrumentType" onchange="updateFormFields()">
+                <option value="promissory-note">Promissory Note</option>
+                <option value="check">Check</option>
+                <option value="bill-of-exchange">Bill of Exchange (Draft)</option>
+                <option value="demand-draft">Demand Draft</option>
+            </select>
+            <div class="legal-reference">UCC § 3-104: Negotiable Instrument</div>
+        </div>
         
         <div class="form-group">
             <label>Principal Amount ($):</label>
-            <input type="number" id="amount" placeholder="e.g. 1000.00">
+            <input type="number" id="amount" placeholder="e.g. 1000.00" step="0.01">
+            <div class="legal-reference">UCC § 3-104(a): Must state a fixed amount of money</div>
         </div>
-        <div class="form-group">
-            <label>Maker (Debtor) Name:</label>
+        
+        <!-- Promissory Note & All Instruments: Maker -->
+        <div class="form-group" id="makerGroup">
+            <label><span id="makerLabel">Maker (Obligor)</span> Name:</label>
             <input type="text" id="makerName" placeholder="Full Legal Name">
+            <div class="legal-reference" id="makerRef">UCC § 3-103(a)(7): Person who signs note promising to pay</div>
         </div>
-        <div class="form-group">
-            <label>Maker Address:</label>
+        <div class="form-group" id="makerAddressGroup">
+            <label><span id="makerAddressLabel">Maker</span> Address:</label>
             <textarea id="makerAddress" rows="2"></textarea>
         </div>
+        
+        <!-- Checks and Bills: Drawee -->
+        <div class="form-group hidden" id="draweeGroup">
+            <label>Drawee (Payor Bank/Institution) Name:</label>
+            <input type="text" id="draweeName" placeholder="Financial Institution Name">
+            <div class="legal-reference">UCC § 3-103(a)(4): Person ordered to make payment</div>
+        </div>
+        <div class="form-group hidden" id="draweeAddressGroup">
+            <label>Drawee Address:</label>
+            <textarea id="draweeAddress" rows="2"></textarea>
+        </div>
+        <div class="form-group hidden" id="accountGroup">
+            <label>Account Number (if applicable):</label>
+            <input type="text" id="accountNumber" placeholder="Account Number">
+        </div>
+        
         <div class="form-group">
-            <label>Payee (Creditor) Name:</label>
-            <input type="text" id="payeeName" placeholder="Full Legal Name">
+            <label>Payee (Creditor/Holder) Name:</label>
+            <input type="text" id="payeeName" placeholder="Full Legal Name or 'Bearer'">
+            <div class="legal-reference">UCC § 3-103(a)(11): Person to whom instrument is initially payable</div>
         </div>
         <div class="form-group">
             <label>Payee Address:</label>
@@ -48,48 +85,243 @@
         <div class="form-group">
             <label>Date of Issue:</label>
             <input type="date" id="issueDate">
+            <div class="legal-reference">UCC § 3-113: Date affects maturity and statute of limitations</div>
         </div>
         <div class="form-group">
             <label>Place of Issue:</label>
             <input type="text" id="place" placeholder="City, State/Province">
         </div>
         
-        <button onclick="generateNote()">Generate Note</button>
+        <button onclick="generateNote()">Generate Instrument</button>
     </div>
 
     <div id="note-output">
-        <div class="note-header">PROMISSORY NOTE</div>
+        <div class="note-header" id="instrumentHeader">PROMISSORY NOTE</div>
         <p><strong>Amount:</strong> $<span id="out-amount"></span></p>
         <p><strong>Date:</strong> <span id="out-date"></span></p>
         <p><strong>Place:</strong> <span id="out-place"></span></p>
         
-        <p>
-            FOR VALUE RECEIVED, the undersigned, <strong><span id="out-maker"></span></strong> (the "Maker"), 
-            residing at <span id="out-maker-addr"></span>, hereby promises to pay to the order of 
-            <strong><span id="out-payee"></span></strong> (the "Payee"), residing at <span id="out-payee-addr"></span>, 
-            the principal sum of <strong><span id="out-amount-text"></span> Dollars ($<span id="out-amount-num"></span>)</strong>.
+        <div id="instrumentBody">
+            <!-- Dynamic content generated based on instrument type -->
+        </div>
+        
+        <p style="margin-top: 30px;">
+            <strong>RESERVATION OF RIGHTS (UCC § 1-308):</strong><br>
+            All rights reserved without prejudice. UCC § 1-308 (formerly UCC § 1-207) preserves all common law and statutory rights.
         </p>
         
         <p>
-            This note is a negotiable instrument governed by the Uniform Commercial Code (UCC) Article 3. 
-            Payment shall be made in lawful money of the United States.
+            <strong>NOTICE OF DISHONOR (UCC § 3-501 et seq.):</strong><br>
+            Non-acceptance or dishonor of this instrument may serve as leverage or evidence of claims. 
+            Per UCC § 3-501 (Presentment), § 3-502 (Dishonor), and § 3-503 (Notice of Dishonor), 
+            failure to honor this instrument upon proper presentment activates secondary party liability 
+            and may be used as evidence in any claim or legal proceeding. See also UCC § 3-505 (Evidence of Dishonor).
         </p>
+        
+        <div class="seal">
+            <p>[L.S.] <i>(Locus Sigilli - Place of Seal)</i></p>
+        </div>
         
         <div style="margin-top: 50px;">
             <p>__________________________________________<br>
-            <strong><span id="sig-maker"></span></strong> (Maker Signature)</p>
+            <strong><span id="sig-maker"></span></strong> (<span id="sig-role">Maker</span> Signature)</p>
+        </div>
+        
+        <div class="definitions">
+            <p><strong>DEFINITIONS AND LEGAL REFERENCES</strong></p>
+            
+            <p><span class="definition-term">Negotiable Instrument (UCC § 3-104):</span> An unconditional promise or order to pay a fixed amount of money, with or without interest, payable to bearer or to order at the time it is issued or first comes into possession of a holder, payable on demand or at a definite time, and does not state any other undertaking by the person promising or ordering payment.</p>
+            
+            <p><span class="definition-term">Holder (UCC § 3-301):</span> The person in possession of a negotiable instrument that is payable either to bearer or to an identified person that is the person in possession.</p>
+            
+            <p><span class="definition-term">Value (UCC § 3-303):</span> An instrument is issued or transferred for value if: (i) the instrument is issued or transferred for a promise of performance, to the extent the promise has been performed; (ii) the transferee acquires a security interest or other lien in the instrument; (iii) the instrument is issued or transferred as payment of, or as security for, an antecedent claim; (iv) the instrument is issued or transferred in exchange for a negotiable instrument; or (v) the instrument is issued or transferred in exchange for the incurring of an irrevocable obligation to a third party.</p>
+            
+            <p><span class="definition-term">Consideration:</span> Something of value given in exchange for a promise or performance. Under common law and UCC principles, consideration is required for a contract to be enforceable. See UCC § 3-303 (Value) for negotiable instruments context.</p>
+            
+            <p><span class="definition-term">Maker (UCC § 3-103(a)(7)):</span> A person who signs or is identified in a note as a person undertaking to pay.</p>
+            
+            <p><span class="definition-term">Drawer (UCC § 3-103(a)(5)):</span> A person who signs or is identified in a draft as a person ordering payment.</p>
+            
+            <p><span class="definition-term">Drawee (UCC § 3-103(a)(4)):</span> A person ordered in a draft to make payment.</p>
+            
+            <p><span class="definition-term">Payee (UCC § 3-103(a)(11)):</span> A person to whom an instrument is initially payable.</p>
+            
+            <p><strong>Constitutional Authority:</strong> U.S. Constitution Article I, Section 8 grants Congress power to coin money and regulate its value. Article I, Section 10 prohibits states from coining money or making anything but gold and silver coin a tender in payment of debts.</p>
+            
+            <p><strong>Legal Tender Statute:</strong> 31 USC § 5103 establishes United States coins and currency (including Federal Reserve notes) as legal tender for all debts, public charges, taxes, and dues.</p>
+            
+            <p><strong>Federal Reserve Act:</strong> 12 USC § 411 provides that Federal Reserve notes shall be obligations of the United States and shall be receivable by all national and member banks and Federal Reserve banks and for all taxes, customs, and other public dues.</p>
+            
+            <p><strong>UCC General Provisions:</strong> UCC § 1-201(24) defines "money" as a medium of exchange currently authorized or adopted by a domestic or foreign government. UCC § 1-308 permits reservation of rights without prejudice.</p>
+            
+            <p style="font-size: 10px; margin-top: 20px;"><i>This instrument is governed by the Uniform Commercial Code as adopted in the relevant jurisdiction, along with applicable federal and constitutional law. This document is for informational purposes and does not constitute legal advice. Consult with a qualified attorney for specific legal questions.</i></p>
         </div>
         
         <button class="no-print print-btn" onclick="window.print()">Print / Save as PDF</button>
     </div>
 
     <script>
+        function updateFormFields() {
+            const type = document.getElementById('instrumentType').value;
+            
+            // Hide/show fields based on instrument type
+            const draweeGroup = document.getElementById('draweeGroup');
+            const draweeAddressGroup = document.getElementById('draweeAddressGroup');
+            const accountGroup = document.getElementById('accountGroup');
+            const makerLabel = document.getElementById('makerLabel');
+            const makerAddressLabel = document.getElementById('makerAddressLabel');
+            const makerRef = document.getElementById('makerRef');
+            
+            if (type === 'check' || type === 'bill-of-exchange' || type === 'demand-draft') {
+                // Show drawee fields for drafts and checks
+                draweeGroup.classList.remove('hidden');
+                draweeAddressGroup.classList.remove('hidden');
+                accountGroup.classList.remove('hidden');
+                
+                // Change labels for drawer
+                makerLabel.innerText = 'Drawer (Issuer)';
+                makerAddressLabel.innerText = 'Drawer';
+                makerRef.innerText = 'UCC § 3-103(a)(5): Person who signs or is identified in draft as person ordering payment';
+            } else {
+                // Hide drawee fields for promissory notes
+                draweeGroup.classList.add('hidden');
+                draweeAddressGroup.classList.add('hidden');
+                accountGroup.classList.add('hidden');
+                
+                // Restore labels for maker
+                makerLabel.innerText = 'Maker (Obligor)';
+                makerAddressLabel.innerText = 'Maker';
+                makerRef.innerText = 'UCC § 3-103(a)(7): Person who signs note promising to pay';
+            }
+        }
+
+        function getInstrumentTitle(type) {
+            switch(type) {
+                case 'check': return 'CHECK';
+                case 'bill-of-exchange': return 'BILL OF EXCHANGE';
+                case 'demand-draft': return 'DEMAND DRAFT';
+                default: return 'PROMISSORY NOTE';
+            }
+        }
+        
+        function getSignatureRole(type) {
+            switch(type) {
+                case 'check':
+                case 'bill-of-exchange':
+                case 'demand-draft':
+                    return 'Drawer';
+                default:
+                    return 'Maker';
+            }
+        }
+
+        function generateInstrumentBody(type, data) {
+            let body = '';
+            
+            if (type === 'promissory-note') {
+                body = `
+                    <p>
+                        <strong>FOR VALUE RECEIVED</strong>, the undersigned, <strong>${data.maker}</strong> (the "Maker"), 
+                        residing at ${data.makerAddr}, hereby promises to pay to the order of 
+                        <strong>${data.payee}</strong> (the "Payee"), residing at ${data.payeeAddr}, 
+                        the principal sum of <strong>${data.amountText} Dollars ($${data.amount})</strong>.
+                    </p>
+                    
+                    <p>
+                        This promissory note is a negotiable instrument governed by the Uniform Commercial Code (UCC) Article 3, 
+                        specifically UCC § 3-104(e) (definition of note). Payment shall be made in lawful money of the United States 
+                        on demand or at a definite time as agreed by the parties.
+                    </p>
+                    
+                    <p>
+                        The Maker hereby acknowledges that this note constitutes an unconditional promise to pay pursuant to 
+                        UCC § 3-106 and UCC § 3-412 (Obligation of Maker), and agrees to pay upon proper presentment per 
+                        UCC § 3-501. This instrument is payable to order as defined in UCC § 3-109.
+                    </p>
+                `;
+            } else if (type === 'check') {
+                body = `
+                    <p>
+                        <strong>PAY TO THE ORDER OF:</strong> <strong>${data.payee}</strong>
+                    </p>
+                    
+                    <p>
+                        The sum of <strong>${data.amountText} Dollars ($${data.amount})</strong>.
+                    </p>
+                    
+                    <p>
+                        <strong>TO:</strong> ${data.drawee}<br>
+                        ${data.draweeAddr}${data.account ? '<br>Account: ' + data.account : ''}
+                    </p>
+                    
+                    <p>
+                        <strong>FROM:</strong> ${data.maker} (Drawer)<br>
+                        ${data.makerAddr}
+                    </p>
+                    
+                    <p>
+                        This check is a negotiable instrument governed by UCC Article 3, specifically UCC § 3-104(f) (definition of check). 
+                        A check is a draft, drawn on a bank and payable on demand. Per UCC § 3-414, the drawer is obligated to pay 
+                        the amount of the draft if it is dishonored. The drawee bank is not liable on the instrument until it accepts 
+                        (certifies) the check per UCC § 3-408 and § 3-409.
+                    </p>
+                    
+                    <p>
+                        Payee: ${data.payeeAddr}
+                    </p>
+                `;
+            } else if (type === 'bill-of-exchange' || type === 'demand-draft') {
+                const isDemand = type === 'demand-draft';
+                body = `
+                    <p>
+                        <strong>${isDemand ? 'AT SIGHT' : 'FOR VALUE RECEIVED'}</strong>, 
+                        pay to the order of <strong>${data.payee}</strong> (the "Payee"), 
+                        residing at ${data.payeeAddr}, 
+                        the sum of <strong>${data.amountText} Dollars ($${data.amount})</strong>.
+                    </p>
+                    
+                    <p>
+                        <strong>TO:</strong> ${data.drawee} (the "Drawee")<br>
+                        ${data.draweeAddr}${data.account ? '<br>Account: ' + data.account : ''}
+                    </p>
+                    
+                    <p>
+                        <strong>FROM:</strong> ${data.maker} (the "Drawer")<br>
+                        ${data.makerAddr}
+                    </p>
+                    
+                    <p>
+                        This ${isDemand ? 'demand draft' : 'bill of exchange'} is a negotiable instrument governed by 
+                        the Uniform Commercial Code (UCC) Article 3, specifically UCC § 3-104(e) (definition of draft). 
+                        A draft is an order to pay. ${isDemand ? 'This draft is payable on demand (at sight) per UCC § 3-108(a).' : 
+                        'This draft may be payable on demand or at a definite time per UCC § 3-108.'}
+                    </p>
+                    
+                    <p>
+                        Per UCC § 3-414, the drawer is obligated to pay the amount of the draft to any person entitled to 
+                        enforce the draft if the draft is dishonored. The drawee is not liable on the instrument until it 
+                        accepts the draft per UCC § 3-408 and § 3-409. Upon acceptance, the drawee becomes primarily liable 
+                        per UCC § 3-413.
+                    </p>
+                    
+                    <p>
+                        If the drawee dishonors this draft by non-acceptance or non-payment, the drawer and any endorsers 
+                        become liable per UCC § 3-502 (Dishonor) and § 3-503 (Notice of Dishonor), provided that proper 
+                        presentment is made per UCC § 3-501.
+                    </p>
+                `;
+            }
+            
+            return body;
+        }
+
         function numberToWords(number) {
             // Simple helper for demonstration - in production use a more robust library
             return number.toLocaleString() + ' and 00/100';
         }
 
         function generateNote() {
+            const type = document.getElementById('instrumentType').value;
             const amount = document.getElementById('amount').value;
             const maker = document.getElementById('makerName').value;
             const makerAddr = document.getElementById('makerAddress').value;
@@ -97,21 +329,31 @@
             const payeeAddr = document.getElementById('payeeAddress').value;
             const date = document.getElementById('issueDate').value;
             const place = document.getElementById('place').value;
+            const drawee = document.getElementById('draweeName').value;
+            const draweeAddr = document.getElementById('draweeAddress').value;
+            const account = document.getElementById('accountNumber').value;
 
+            const data = {
+                maker, makerAddr, payee, payeeAddr, 
+                amount, amountText: amount,
+                drawee, draweeAddr, account
+            };
+
+            document.getElementById('instrumentHeader').innerText = getInstrumentTitle(type);
             document.getElementById('out-amount').innerText = amount;
-            document.getElementById('out-amount-num').innerText = amount;
-            document.getElementById('out-amount-text').innerText = amount; // Simple pass through
             document.getElementById('out-date').innerText = date;
             document.getElementById('out-place').innerText = place;
-            document.getElementById('out-maker').innerText = maker;
-            document.getElementById('out-maker-addr').innerText = makerAddr;
-            document.getElementById('out-payee').innerText = payee;
-            document.getElementById('out-payee-addr').innerText = payeeAddr;
             document.getElementById('sig-maker').innerText = maker;
+            document.getElementById('sig-role').innerText = getSignatureRole(type);
+            
+            document.getElementById('instrumentBody').innerHTML = generateInstrumentBody(type, data);
 
             document.getElementById('note-output').style.display = 'block';
             window.scrollTo(0, document.body.scrollHeight);
         }
+        
+        // Initialize form on page load
+        updateFormFields();
     </script>
 </body>
 </html>
