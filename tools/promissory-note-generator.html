@@ -17,6 +17,12 @@
         .hidden { display: none; }
         .legal-reference { font-size: 11px; font-style: italic; color: #666; margin-top: 5px; }
         .seal { text-align: right; font-size: 14px; margin-top: 30px; }
+        .seal-container { display: flex; justify-content: space-around; align-items: center; margin-top: 30px; margin-bottom: 30px; flex-wrap: wrap; }
+        .seal-item { text-align: center; margin: 10px; }
+        .seal-item img { width: 120px; height: 120px; }
+        .seal-item p { font-size: 10px; margin-top: 5px; font-style: italic; }
+        .indorsement-section { border-top: 2px solid #000; margin-top: 40px; padding-top: 20px; }
+        .indorsement-title { font-weight: bold; text-decoration: underline; margin-bottom: 15px; }
         .definitions { font-size: 12px; border-top: 1px solid #ccc; margin-top: 30px; padding-top: 20px; }
         .definition-term { font-weight: bold; }
         @media print {
@@ -98,6 +104,7 @@
     <div id="note-output">
         <div class="note-header" id="instrumentHeader">PROMISSORY NOTE</div>
         <p><strong>Amount:</strong> $<span id="out-amount"></span></p>
+        <p><strong>Amount in Words:</strong> <span id="out-amount-words"></span></p>
         <p><strong>Date:</strong> <span id="out-date"></span></p>
         <p><strong>Place:</strong> <span id="out-place"></span></p>
         
@@ -122,9 +129,41 @@
             <p>[L.S.] <i>(Locus Sigilli - Place of Seal)</i></p>
         </div>
         
+        <div class="seal-container">
+            <div class="seal-item">
+                <img src="../assets/seals/travis-ryle-official-seal.svg" alt="Travis Ryle Official Seal">
+                <p>Travis Ryle Official Seal</p>
+            </div>
+            <div class="seal-item">
+                <img src="../assets/seals/travis-ryle-bank-trust-seal.svg" alt="Travis Ryle Private Bank Estate & Trust">
+                <p>The Travis Ryle Private Bank Estate &amp; Trust</p>
+            </div>
+            <div class="seal-item">
+                <img src="../assets/seals/lawfully-illegal-agency-seal.svg" alt="Lawfully Illegal Public Accountability Enforcement Agency">
+                <p>Lawfully Illegal Public Accountability Enforcement Agency</p>
+            </div>
+        </div>
+        
         <div style="margin-top: 50px;">
             <p>__________________________________________<br>
             <strong><span id="sig-maker"></span></strong> (<span id="sig-role">Maker</span> Signature)</p>
+        </div>
+        
+        <div class="indorsement-section">
+            <p class="indorsement-title">INDORSEMENT SECTION</p>
+            <p><strong>UCC § 3-204 - Indorsement:</strong> An indorsement is a signature, other than that of a signer as maker, drawer, or acceptor, that alone or accompanied by other words is made on an instrument for the purpose of (i) negotiating the instrument, (ii) restricting payment of the instrument, or (iii) incurring indorser's liability on the instrument.</p>
+            <p style="margin-top: 20px;"><strong>Transfer and Indorsement Instructions:</strong> To transfer this negotiable instrument to another party, the current holder (payee or indorsee) must sign below and deliver the instrument to the transferee. The indorsement may be blank (signature only) or special (indicating "Pay to the order of [name]"). Per UCC § 3-204, an indorsement must be written on the instrument or on a paper affixed to the instrument (an allonge).</p>
+            
+            <div style="margin-top: 30px; border: 1px solid #ccc; padding: 20px; min-height: 100px; background: #fafafa;">
+                <p style="margin-bottom: 40px;"><strong>INDORSEMENT:</strong></p>
+                <p>________________________________________________</p>
+                <p style="font-size: 11px; margin-top: 5px;"><i>Signature of Indorser</i></p>
+                <p style="margin-top: 20px;">________________________________________________</p>
+                <p style="font-size: 11px; margin-top: 5px;"><i>Printed Name of Indorser</i></p>
+                <p style="margin-top: 20px;">Date: ___________________</p>
+            </div>
+            
+            <p style="margin-top: 15px; font-size: 11px;"><i>Note: Additional indorsements may be made on the reverse side or on an attached allonge per UCC § 3-204(a).</i></p>
         </div>
         
         <div class="definitions">
@@ -248,7 +287,7 @@
                         <strong>FOR VALUE RECEIVED</strong>, the undersigned, <strong>${esc.maker}</strong> (the "Maker"), 
                         residing at ${esc.makerAddr}, hereby promises to pay to the order of 
                         <strong>${esc.payee}</strong> (the "Payee"), residing at ${esc.payeeAddr}, 
-                        the principal sum of <strong>${esc.amountText} Dollars ($${esc.amount})</strong>.
+                        the principal sum of <strong>${esc.amountText} ($${esc.amount})</strong>.
                     </p>
                     
                     <p>
@@ -270,7 +309,7 @@
                     </p>
                     
                     <p>
-                        The sum of <strong>${esc.amountText} Dollars ($${esc.amount})</strong>.
+                        The sum of <strong>${esc.amountText} ($${esc.amount})</strong>.
                     </p>
                     
                     <p>
@@ -301,7 +340,7 @@
                         <strong>${isDemand ? 'AT SIGHT' : 'FOR VALUE RECEIVED'}</strong>, 
                         pay to the order of <strong>${esc.payee}</strong> (the "Payee"), 
                         residing at ${esc.payeeAddr}, 
-                        the sum of <strong>${esc.amountText} Dollars ($${esc.amount})</strong>.
+                        the sum of <strong>${esc.amountText} ($${esc.amount})</strong>.
                     </p>
                     
                     <p>
@@ -340,10 +379,83 @@
         }
 
         function numberToWords(number) {
-            // Note: This currently formats as numeric with locale string (e.g., "5,000.00")
-            // For written text conversion (e.g., "Five Thousand"), integrate a number-to-words library
-            // Both numeric and written formats are acceptable for modern negotiable instruments
-            return number.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            // Convert number to words for legal documents
+            // This function handles numbers from 0 to 999,999,999.99
+            
+            if (!number || isNaN(number)) return 'Zero Dollars';
+            
+            const num = parseFloat(number);
+            if (num === 0) return 'Zero Dollars';
+            
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            
+            function convertLessThanThousand(n) {
+                if (n === 0) return '';
+                
+                let result = '';
+                
+                if (n >= 100) {
+                    result += ones[Math.floor(n / 100)] + ' Hundred';
+                    n %= 100;
+                    if (n > 0) result += ' ';
+                }
+                
+                if (n >= 20) {
+                    result += tens[Math.floor(n / 10)];
+                    n %= 10;
+                    if (n > 0) result += '-' + ones[n];
+                } else if (n >= 10) {
+                    result += teens[n - 10];
+                } else if (n > 0) {
+                    result += ones[n];
+                }
+                
+                return result;
+            }
+            
+            // Split into dollars and cents
+            const dollars = Math.floor(num);
+            const cents = Math.round((num - dollars) * 100);
+            
+            let result = '';
+            
+            if (dollars === 0) {
+                result = 'Zero';
+            } else {
+                const billion = Math.floor(dollars / 1000000000);
+                const million = Math.floor((dollars % 1000000000) / 1000000);
+                const thousand = Math.floor((dollars % 1000000) / 1000);
+                const remainder = dollars % 1000;
+                
+                if (billion > 0) {
+                    result += convertLessThanThousand(billion) + ' Billion';
+                    if (million > 0 || thousand > 0 || remainder > 0) result += ' ';
+                }
+                
+                if (million > 0) {
+                    result += convertLessThanThousand(million) + ' Million';
+                    if (thousand > 0 || remainder > 0) result += ' ';
+                }
+                
+                if (thousand > 0) {
+                    result += convertLessThanThousand(thousand) + ' Thousand';
+                    if (remainder > 0) result += ' ';
+                }
+                
+                if (remainder > 0) {
+                    result += convertLessThanThousand(remainder);
+                }
+            }
+            
+            result += ' Dollar' + (dollars === 1 ? '' : 's');
+            
+            if (cents > 0) {
+                result += ' and ' + cents + '/100';
+            }
+            
+            return result.trim();
         }
 
         function generateNote() {
@@ -359,14 +471,18 @@
             const draweeAddr = document.getElementById('draweeAddress').value;
             const account = document.getElementById('accountNumber').value;
 
+            const amountWords = numberToWords(amount);
+            const amountFormatted = parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
             const data = {
                 maker, makerAddr, payee, payeeAddr, 
-                amount, amountText: amount,
+                amount: amountFormatted, amountText: amountWords,
                 drawee, draweeAddr, account
             };
 
             document.getElementById('instrumentHeader').innerText = getInstrumentTitle(type);
-            document.getElementById('out-amount').innerText = amount;
+            document.getElementById('out-amount').innerText = amountFormatted;
+            document.getElementById('out-amount-words').innerText = amountWords;
             document.getElementById('out-date').innerText = date;
             document.getElementById('out-place').innerText = place;
             document.getElementById('sig-maker').innerText = maker;

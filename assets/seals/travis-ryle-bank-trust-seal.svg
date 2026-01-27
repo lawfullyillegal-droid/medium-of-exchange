@@ -1,0 +1,53 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer circle -->
+  <circle cx="150" cy="150" r="145" fill="#0d2840" stroke="#d4af37" stroke-width="5"/>
+  
+  <!-- Inner decorative circle -->
+  <circle cx="150" cy="150" r="135" fill="none" stroke="#d4af37" stroke-width="2"/>
+  
+  <!-- Center emblem circle -->
+  <circle cx="150" cy="150" r="90" fill="#1a4870" stroke="#d4af37" stroke-width="3"/>
+  
+  <!-- Bank/Trust symbol - classical column with vault -->
+  <g transform="translate(150, 145)">
+    <!-- Vault/Safe door -->
+    <rect x="-25" y="-25" width="50" height="50" fill="none" stroke="#d4af37" stroke-width="3" rx="3"/>
+    <!-- Inner vault detail -->
+    <rect x="-20" y="-20" width="40" height="40" fill="#d4af37" opacity="0.2" rx="2"/>
+    <!-- Central lock circle -->
+    <circle cx="0" cy="0" r="12" fill="none" stroke="#d4af37" stroke-width="2"/>
+    <circle cx="0" cy="0" r="8" fill="#d4af37"/>
+    <!-- Lock spokes -->
+    <line x1="0" y1="-8" x2="0" y2="-12" stroke="#0d2840" stroke-width="2"/>
+    <line x1="8" y1="0" x2="12" y2="0" stroke="#0d2840" stroke-width="2"/>
+    <line x1="0" y1="8" x2="0" y2="12" stroke="#0d2840" stroke-width="2"/>
+    <line x1="-8" y1="0" x2="-12" y2="0" stroke="#0d2840" stroke-width="2"/>
+    <!-- Vault handle -->
+    <line x1="25" y1="0" x2="40" y2="0" stroke="#d4af37" stroke-width="3"/>
+    <circle cx="40" cy="0" r="5" fill="#d4af37"/>
+  </g>
+  
+  <!-- Stars for decoration -->
+  <text x="150" y="70" font-family="Arial, sans-serif" font-size="24" fill="#d4af37" text-anchor="middle">★</text>
+  <text x="75" y="150" font-family="Arial, sans-serif" font-size="18" fill="#d4af37" text-anchor="middle">★</text>
+  <text x="225" y="150" font-family="Arial, sans-serif" font-size="18" fill="#d4af37" text-anchor="middle">★</text>
+  
+  <!-- Outer text - top arc -->
+  <path id="topArc" d="M 25,150 A 125,125 0 0,1 275,150" fill="none"/>
+  <text font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#d4af37" letter-spacing="1">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">
+      THE TRAVIS RYLE PRIVATE BANK
+    </textPath>
+  </text>
+  
+  <!-- Outer text - bottom arc -->
+  <path id="bottomArc" d="M 275,150 A 125,125 0 0,1 25,150" fill="none"/>
+  <text font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#d4af37" letter-spacing="1">
+    <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">
+      ESTATE &amp; TRUST
+    </textPath>
+  </text>
+  
+  <!-- Center year -->
+  <text x="150" y="220" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#d4af37" text-anchor="middle">ESTABLISHED 2026</text>
+</svg>
