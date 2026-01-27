@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medium of Exchange Defense System | UCC Article 3 Legal Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .status-bar {
+            background: #f8f9fa;
+            padding: 20px 40px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .status-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status-item .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .status-item .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .main-content {
+            padding: 40px;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        .tool-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        .tool-card h3 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+        .tool-card p {
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .tool-card .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        .tool-card .btn:hover {
+            background: #5568d3;
+        }
+        .section-title {
+            font-size: 2em;
+            color: #1e3c72;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 20px;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .quick-links {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        .quick-links a {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            color: #667eea;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .quick-links a:hover {
+            background: #667eea;
+            color: white;
+        }
+        footer {
+            background: #1e3c72;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        .icon { font-size: 2em; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏛️ Medium of Exchange Defense System</h1>
+            <p>Legal Defense Documentation Engine for UCC Article 3 Negotiable Instruments</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="number" id="instruments">0</div>
+                    <div class="label">Active Instruments</div>
+                </div>
+                <div class="status-item">
+                    <div class="number" id="disputes">0</div>
+                    <div class="label">Open Disputes</div>
+                </div>
+                <div class="status-item">
+                    <div class="number" id="actions">0</div>
+                    <div class="label">Pending Actions</div>
+                </div>
+                <div class="status-item">
+                    <div class="number" id="cases">0</div>
+                    <div class="label">Cases Tracked</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <h2 class="section-title">🛠️ Core Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card" onclick="location.href='tools/promissory-note-generator.html'">
+                    <div class="icon">📝</div>
+                    <h3>Instrument Generator</h3>
+                    <p>Create UCC Article 3 compliant promissory notes, checks, bills of exchange, and drafts</p>
+                    <a href="tools/promissory-note-generator.html" class="btn">Launch Generator</a>
+                </div>
+
+                <div class="tool-card" onclick="window.open('https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki', '_blank')">
+                    <div class="icon">📚</div>
+                    <h3>Documentation Wiki</h3>
+                    <p>Complete system documentation, workflows, templates, and legal definitions</p>
+                    <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki" class="btn">View Wiki</a>
+                </div>
+
+                <div class="tool-card" onclick="window.open('https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Export-and-Exhibits', '_blank')">
+                    <div class="icon">📦</div>
+                    <h3>Evidence Exporter</h3>
+                    <p>Generate court-admissible exhibits and evidence packets from your records</p>
+                    <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Export-and-Exhibits" class="btn">Export Exhibits</a>
+                </div>
+
+                <div class="tool-card" onclick="window.open('https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Instrument-Records', '_blank')">
+                    <div class="icon">🗂️</div>
+                    <h3>Instrument Records</h3>
+                    <p>Track and document all negotiable instruments with full UCC characterization</p>
+                    <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Instrument-Records" class="btn">View Records</a>
+                </div>
+
+                <div class="tool-card" onclick="window.open('https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Active-Disputes', '_blank')">
+                    <div class="icon">⚖️</div>
+                    <h3>Dispute Manager</h3>
+                    <p>Manage active disputes, track FCRA/FDCPA violations, and document evidence</p>
+                    <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Active-Disputes" class="btn">Manage Disputes</a>
+                </div>
+
+                <div class="tool-card" onclick="window.open('https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Workflows', '_blank')">
+                    <div class="icon">🔄</div>
+                    <h3>Defense Workflows</h3>
+                    <p>Step-by-step procedures for validation, disputes, and litigation preparation</p>
+                    <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Workflows" class="btn">View Workflows</a>
+                </div>
+            </div>
+
+            <h2 class="section-title">✅ System Features</h2>
+            <ul class="feature-list">
+                <li>Document every instrument with full UCC Article 3 characterization</li>
+                <li>Track chain of custody and endorsements for all negotiable instruments</li>
+                <li>Record all notices, responses, and statutory violations</li>
+                <li>Generate exhibits for CFPB complaints, FCRA disputes, and litigation</li>
+                <li>Maintain statutory citations for every legal position</li>
+                <li>Create court-admissible evidence packets with authentication</li>
+                <li>Business Records Exception compliance (FRE 803(6))</li>
+                <li>Mobile-optimized instrument creation and management</li>
+            </ul>
+
+            <div class="quick-links">
+                <h3 style="margin-bottom: 15px; color: #1e3c72;">📑 Quick Links</h3>
+                <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Definitions">Legal Definitions</a>
+                <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Credit-Reports">Credit Reports</a>
+                <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Cases-and-Precedent">Cases & Precedent</a>
+                <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange/wiki/Schemas">Data Schemas</a>
+                <a href="https://github.com/lawfullyillegal-droid/medium-of-exchange">GitHub Repository</a>
+                <a href="docs/">Documentation</a>
+                <a href="records/">Records</a>
+            </div>
+
+            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 30px 0; border-radius: 5px;">
+                <h3 style="color: #856404; margin-bottom: 10px;">⚠️ Important Notice</h3>
+                <p style="color: #856404;"><strong>Not Legal Advice:</strong> This is a documentation and record-keeping system. Consult an attorney for legal advice. You are responsible for accuracy, deadlines, and compliance with applicable laws.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Medium of Exchange Defense System</strong></p>
+            <p>Ryle Family Nation | UCC Article 3 Compliance</p>
+            <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Last Updated: January 27, 2026</p>
+        </footer>
+    </div>
+
+    <script>
+        // Update status counters (connect to your data source)
+        document.addEventListener('DOMContentLoaded', function() {
+            // These would be dynamically loaded from your records
+            // For now, displaying initial state
+            console.log('Medium of Exchange Defense System loaded');
+        });
+    </script>
+</body>
+</html>
