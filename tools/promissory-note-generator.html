@@ -161,6 +161,17 @@
     </div>
 
     <script>
+        // HTML escape function to prevent XSS
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
         function updateFormFields() {
             const type = document.getElementById('instrumentType').value;
             
@@ -216,15 +227,28 @@
         }
 
         function generateInstrumentBody(type, data) {
+            // Escape all user input to prevent XSS
+            const esc = {
+                maker: escapeHtml(data.maker),
+                makerAddr: escapeHtml(data.makerAddr),
+                payee: escapeHtml(data.payee),
+                payeeAddr: escapeHtml(data.payeeAddr),
+                amount: escapeHtml(data.amount),
+                amountText: escapeHtml(data.amountText),
+                drawee: escapeHtml(data.drawee),
+                draweeAddr: escapeHtml(data.draweeAddr),
+                account: escapeHtml(data.account)
+            };
+            
             let body = '';
             
             if (type === 'promissory-note') {
                 body = `
                     <p>
-                        <strong>FOR VALUE RECEIVED</strong>, the undersigned, <strong>${data.maker}</strong> (the "Maker"), 
-                        residing at ${data.makerAddr}, hereby promises to pay to the order of 
-                        <strong>${data.payee}</strong> (the "Payee"), residing at ${data.payeeAddr}, 
-                        the principal sum of <strong>${data.amountText} Dollars ($${data.amount})</strong>.
+                        <strong>FOR VALUE RECEIVED</strong>, the undersigned, <strong>${esc.maker}</strong> (the "Maker"), 
+                        residing at ${esc.makerAddr}, hereby promises to pay to the order of 
+                        <strong>${esc.payee}</strong> (the "Payee"), residing at ${esc.payeeAddr}, 
+                        the principal sum of <strong>${esc.amountText} Dollars ($${esc.amount})</strong>.
                     </p>
                     
                     <p>
@@ -242,21 +266,21 @@
             } else if (type === 'check') {
                 body = `
                     <p>
-                        <strong>PAY TO THE ORDER OF:</strong> <strong>${data.payee}</strong>
+                        <strong>PAY TO THE ORDER OF:</strong> <strong>${esc.payee}</strong>
                     </p>
                     
                     <p>
-                        The sum of <strong>${data.amountText} Dollars ($${data.amount})</strong>.
+                        The sum of <strong>${esc.amountText} Dollars ($${esc.amount})</strong>.
                     </p>
                     
                     <p>
-                        <strong>TO:</strong> ${data.drawee}<br>
-                        ${data.draweeAddr}${data.account ? '<br>Account: ' + data.account : ''}
+                        <strong>TO:</strong> ${esc.drawee}<br>
+                        ${esc.draweeAddr}${esc.account ? '<br>Account: ' + esc.account : ''}
                     </p>
                     
                     <p>
-                        <strong>FROM:</strong> ${data.maker} (Drawer)<br>
-                        ${data.makerAddr}
+                        <strong>FROM:</strong> ${esc.maker} (Drawer)<br>
+                        ${esc.makerAddr}
                     </p>
                     
                     <p>
@@ -267,7 +291,7 @@
                     </p>
                     
                     <p>
-                        Payee: ${data.payeeAddr}
+                        Payee: ${esc.payeeAddr}
                     </p>
                 `;
             } else if (type === 'bill-of-exchange' || type === 'demand-draft') {
@@ -275,19 +299,19 @@
                 body = `
                     <p>
                         <strong>${isDemand ? 'AT SIGHT' : 'FOR VALUE RECEIVED'}</strong>, 
-                        pay to the order of <strong>${data.payee}</strong> (the "Payee"), 
-                        residing at ${data.payeeAddr}, 
-                        the sum of <strong>${data.amountText} Dollars ($${data.amount})</strong>.
+                        pay to the order of <strong>${esc.payee}</strong> (the "Payee"), 
+                        residing at ${esc.payeeAddr}, 
+                        the sum of <strong>${esc.amountText} Dollars ($${esc.amount})</strong>.
                     </p>
                     
                     <p>
-                        <strong>TO:</strong> ${data.drawee} (the "Drawee")<br>
-                        ${data.draweeAddr}${data.account ? '<br>Account: ' + data.account : ''}
+                        <strong>TO:</strong> ${esc.drawee} (the "Drawee")<br>
+                        ${esc.draweeAddr}${esc.account ? '<br>Account: ' + esc.account : ''}
                     </p>
                     
                     <p>
-                        <strong>FROM:</strong> ${data.maker} (the "Drawer")<br>
-                        ${data.makerAddr}
+                        <strong>FROM:</strong> ${esc.maker} (the "Drawer")<br>
+                        ${esc.makerAddr}
                     </p>
                     
                     <p>
