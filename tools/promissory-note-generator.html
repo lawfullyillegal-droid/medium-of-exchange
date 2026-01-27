@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UCC Article 3 Negotiable Instrument Generator - Ryle Family Nation</title>
     <style>
         body { font-family: 'Times New Roman', serif; margin: 40px; line-height: 1.6; }
@@ -19,6 +20,68 @@
         .seal { text-align: right; font-size: 14px; margin-top: 30px; }
         .definitions { font-size: 12px; border-top: 1px solid #ccc; margin-top: 30px; padding-top: 20px; }
         .definition-term { font-weight: bold; }
+        .quick-options { margin-bottom: 20px; padding: 15px; background: #e8f4f8; border-radius: 5px; }
+        .quick-options h3 { margin-top: 0; font-size: 18px; }
+        .preset-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        .preset-btn { padding: 12px 20px; background: #0366d6; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; flex: 1; min-width: 100px; }
+        .preset-btn:hover { background: #0256c4; }
+        .preset-btn.active { background: #2ea44f; }
+        .toggle-label { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+        .toggle-label input[type="checkbox"] { width: auto; margin: 0; }
+        .optional-fields { transition: max-height 0.3s ease-out, opacity 0.3s ease-out; overflow: hidden; max-height: 500px; }
+        .optional-fields.collapsed { max-height: 0; opacity: 0; margin-bottom: 0; padding: 0; }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body { margin: 10px; font-size: 14px; }
+            .container { padding: 15px; margin: 0; }
+            h1 { font-size: 22px; margin-bottom: 10px; }
+            
+            /* Touch-friendly inputs - prevent zoom on iOS */
+            input, textarea, select { 
+                font-size: 16px; 
+                padding: 12px; 
+                min-height: 44px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            
+            /* Touch-friendly buttons */
+            button { 
+                min-height: 44px; 
+                padding: 12px 20px; 
+                font-size: 16px;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            /* Stack preset buttons vertically on very small screens */
+            .preset-buttons { flex-direction: column; }
+            .preset-btn { width: 100%; min-width: auto; }
+            
+            /* Form groups with better spacing */
+            .form-group { margin-bottom: 20px; }
+            label { font-size: 15px; margin-bottom: 8px; }
+            .legal-reference { font-size: 11px; }
+            
+            /* Output optimizations */
+            #note-output { padding: 15px; margin-top: 20px; }
+            .note-header { font-size: 18px; }
+            .definitions { font-size: 11px; }
+            
+            /* Quick options mobile layout */
+            .quick-options { padding: 12px; }
+            .quick-options h3 { font-size: 16px; }
+        }
+        
+        @media (max-width: 480px) {
+            body { margin: 5px; }
+            .container { padding: 10px; }
+            h1 { font-size: 20px; }
+            .preset-buttons { gap: 8px; }
+            .quick-options { margin-bottom: 15px; padding: 10px; }
+        }
+        
         @media print {
             .no-print { display: none; }
             #note-output { display: block; border: none; padding: 0; }
@@ -29,6 +92,38 @@
     <div class="container no-print">
         <h1>UCC Article 3 Negotiable Instrument Generator</h1>
         <p><i>As an Ambassador of the Ryle Family Nation, use this tool to create valid negotiable instruments under the Uniform Commercial Code Article 3.</i></p>
+        
+        <!-- Quick Options Section -->
+        <div class="quick-options">
+            <h3>Quick Creation Options</h3>
+            
+            <!-- Preset Amount Buttons -->
+            <div>
+                <label>Quick Amount Selection:</label>
+                <div class="preset-buttons">
+                    <button type="button" class="preset-btn" onclick="setPresetAmount(1000, this)">$1,000</button>
+                    <button type="button" class="preset-btn" onclick="setPresetAmount(5000, this)">$5,000</button>
+                    <button type="button" class="preset-btn" onclick="setPresetAmount(10000, this)">$10,000</button>
+                    <button type="button" class="preset-btn" onclick="setCustomAmount(this)">Custom</button>
+                </div>
+            </div>
+            
+            <!-- Auto-fill Toggle -->
+            <div style="margin-bottom: 10px;">
+                <label class="toggle-label">
+                    <input type="checkbox" id="autoFillToggle" onchange="toggleAutoFill()">
+                    <span>Auto-fill Dealership Scenario (Common Placeholders)</span>
+                </label>
+            </div>
+            
+            <!-- Quick Generate Toggle -->
+            <div>
+                <label class="toggle-label">
+                    <input type="checkbox" id="quickGenToggle" onchange="toggleOptionalFields()">
+                    <span>Quick Generate Mode (Hide Optional Fields)</span>
+                </label>
+            </div>
+        </div>
         
         <div class="form-group">
             <label>Instrument Type:</label>
@@ -82,12 +177,12 @@
             <label>Payee Address:</label>
             <textarea id="payeeAddress" rows="2"></textarea>
         </div>
-        <div class="form-group">
+        <div class="form-group optional-fields">
             <label>Date of Issue:</label>
             <input type="date" id="issueDate">
             <div class="legal-reference">UCC § 3-113: Date affects maturity and statute of limitations</div>
         </div>
-        <div class="form-group">
+        <div class="form-group optional-fields">
             <label>Place of Issue:</label>
             <input type="text" id="place" placeholder="City, State/Province">
         </div>
@@ -170,6 +265,85 @@
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
+        }
+        
+        // Quick Options Functions
+        
+        function setPresetAmount(amount, btnElement) {
+            document.getElementById('amount').value = amount.toFixed(2);
+            
+            // Update button states
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            btnElement.classList.add('active');
+        }
+        
+        function setCustomAmount(btnElement) {
+            // Focus on amount input for custom entry
+            const amountInput = document.getElementById('amount');
+            amountInput.focus();
+            
+            // Update button states
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            btnElement.classList.add('active');
+        }
+        
+        function toggleAutoFill() {
+            const autoFillEnabled = document.getElementById('autoFillToggle').checked;
+            const DEFAULT_DEALERSHIP_AMOUNT = '25000.00';
+            
+            if (autoFillEnabled) {
+                // Auto-fill with dealership scenario placeholders
+                document.getElementById('instrumentType').value = 'promissory-note';
+                updateFormFields();
+                
+                if (!document.getElementById('amount').value) {
+                    document.getElementById('amount').value = DEFAULT_DEALERSHIP_AMOUNT;
+                }
+                
+                document.getElementById('makerName').value = '[Buyer Name]';
+                document.getElementById('makerAddress').value = '[Buyer Address]\n[City, State ZIP]';
+                document.getElementById('payeeName').value = '[Dealership Name]';
+                document.getElementById('payeeAddress').value = '[Dealership Address]\n[City, State ZIP]';
+                
+                // Set today's date
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('issueDate').value = today;
+                document.getElementById('place').value = '[City, State]';
+            } else {
+                // Clear auto-filled values (but preserve manually entered amounts)
+                if (document.getElementById('makerName').value === '[Buyer Name]') {
+                    document.getElementById('makerName').value = '';
+                }
+                if (document.getElementById('makerAddress').value.includes('[Buyer Address]')) {
+                    document.getElementById('makerAddress').value = '';
+                }
+                if (document.getElementById('payeeName').value === '[Dealership Name]') {
+                    document.getElementById('payeeName').value = '';
+                }
+                if (document.getElementById('payeeAddress').value.includes('[Dealership Address]')) {
+                    document.getElementById('payeeAddress').value = '';
+                }
+                if (document.getElementById('place').value === '[City, State]') {
+                    document.getElementById('place').value = '';
+                }
+            }
+        }
+        
+        function toggleOptionalFields() {
+            const quickGenEnabled = document.getElementById('quickGenToggle').checked;
+            const optionalFields = document.querySelectorAll('.optional-fields');
+            
+            optionalFields.forEach(field => {
+                if (quickGenEnabled) {
+                    field.classList.add('collapsed');
+                } else {
+                    field.classList.remove('collapsed');
+                }
+            });
         }
         
         function updateFormFields() {
