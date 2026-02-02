@@ -4,14 +4,31 @@
 
 The Credit Report & Lexis Nexis Input Tool allows you to document information from your credit reports and Lexis Nexis records, then generate formal dispute instruments based on UCC Article 3 principles and consumer protection laws (FCRA/FDCPA).
 
+**New Feature**: The tool now supports automatic data extraction from uploaded Nexis Lexis reports in PDF, TXT, and HTML formats.
+
 ## Purpose
 
 This system enables you to:
-1. **Document Credit Information**: Input tradelines, inquiries, and account details from credit reports
-2. **Record Public Records**: Document judgments, liens, and other public records from Lexis Nexis
-3. **Generate Dispute Instruments**: Create formal records that treat disputed debts as negotiable instruments
-4. **Demand Validation**: Request proof of standing under UCC Article 3 from collectors and creditors
-5. **Track Violations**: Document potential FCRA and FDCPA violations for enforcement
+1. **Upload Reports**: Upload your Nexis Lexis report for automatic data extraction
+2. **Document Credit Information**: Input tradelines, inquiries, and account details from credit reports
+3. **Record Public Records**: Document judgments, liens, and other public records from Lexis Nexis
+4. **Generate Dispute Instruments**: Create formal records that treat disputed debts as negotiable instruments
+5. **Demand Validation**: Request proof of standing under UCC Article 3 from collectors and creditors
+6. **Track Violations**: Document potential FCRA and FDCPA violations for enforcement
+
+## Supported Report Formats
+
+The upload feature supports the following file formats:
+- **PDF (.pdf)**: Most common format for Nexis Lexis reports
+- **Text (.txt)**: Plain text reports
+- **HTML (.html, .htm)**: Web-based report downloads
+
+The tool automatically extracts:
+- Personal information (name, address, SSN last 4, date of birth)
+- Report date
+- Credit accounts/tradelines (creditor name, account number, balance)
+- Credit inquiries (company name, date)
+- Public records (judgments, liens, case numbers, filing dates)
 
 ## Legal Framework
 
@@ -46,22 +63,42 @@ The system applies UCC Article 3 principles to consumer debts by treating them a
 
 ## How to Use the Tool
 
-### Step 1: Enter Personal Information
+### Step 1: Upload Your Nexis Lexis Report (Optional but Recommended)
 
-Fill in your:
+The tool now supports automatic data extraction from Nexis Lexis reports:
+
+1. **Click "Choose File"** in the Upload section
+2. **Select your report** - Supported formats:
+   - PDF files (.pdf)
+   - Text files (.txt)
+   - HTML files (.html, .htm)
+3. **Review extracted data** - The tool will automatically parse:
+   - Personal information (name, address, SSN, DOB)
+   - Credit report date
+   - Tradelines (accounts, balances, creditors)
+   - Credit inquiries
+   - Public records (judgments, liens, etc.)
+4. **Click "Apply to Form"** to populate the form with extracted data
+5. **Review and adjust** - Always verify the extracted data and add any missing information
+
+**Note**: If automatic extraction doesn't capture all details, you can manually edit or add information in the form fields below.
+
+### Step 2: Enter Personal Information (or Verify Auto-Filled Data)
+
+Fill in or verify:
 - Full legal name
 - Current address
 - SSN (last 4 digits)
 - Date of birth
 
-### Step 2: Credit Report Details
+### Step 3: Credit Report Details
 
-Enter:
+Enter or verify:
 - Report date
 - Bureau(s) that issued the report
 - Report/file number (if available)
 
-### Step 3: Add Tradelines
+### Step 4: Add or Edit Tradelines
 
 For each account on your credit report that you want to dispute or track:
 - Creditor name
@@ -72,17 +109,28 @@ For each account on your credit report that you want to dispute or track:
 - Date opened
 - Reason for dispute
 
-### Step 4: Add Credit Inquiries
+### Step 4: Add or Edit Tradelines
 
-For unauthorized or questionable inquiries:
+For each account on your credit report that you want to dispute or track (these may be auto-populated from upload):
+- Creditor name
+- Account number (last 4 digits)
+- Account type (credit card, mortgage, collection, etc.)
+- Current balance
+- Account status
+- Date opened
+- Reason for dispute
+
+### Step 5: Add or Edit Credit Inquiries
+
+For unauthorized or questionable inquiries (these may be auto-populated from upload):
 - Company name
 - Inquiry date
 - Type (hard or soft)
 - Reason for dispute
 
-### Step 5: Add Public Records
+### Step 6: Add or Edit Public Records
 
-For items from Lexis Nexis or public records:
+For items from Lexis Nexis or public records (these may be auto-populated from upload):
 - Record type (judgment, lien, bankruptcy, etc.)
 - Filing date
 - Case/file number
@@ -91,7 +139,7 @@ For items from Lexis Nexis or public records:
 - Current status
 - Details and dispute reasons
 
-### Step 6: Generate Output
+### Step 7: Generate Output
 
 Choose to generate:
 1. **Instrument Record**: A detailed markdown document for your records

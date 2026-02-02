@@ -102,6 +102,16 @@
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
+        .form-group input[type="file"] {
+            padding: 8px;
+            border: 2px dashed #667eea;
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        .form-group input[type="file"]:hover {
+            background: #e9ecef;
+            border-color: #5568d3;
+        }
         .help-text {
             font-size: 0.85em;
             color: #666;
@@ -265,6 +275,22 @@
                     <li>Generate negotiable instruments demanding validation or disputing inaccuracies</li>
                     <li>Create a record system for FDCPA and FCRA compliance tracking</li>
                 </ul>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="section">
+                <h2>📤 Upload Nexis Lexis Report (Optional)</h2>
+                <p style="margin-bottom: 15px; color: #666;">Upload your Nexis Lexis report to automatically extract information. Supported formats: PDF, TXT, HTML</p>
+                <div class="form-group">
+                    <label for="reportUpload">Select Report File</label>
+                    <input type="file" id="reportUpload" accept=".pdf,.txt,.html,.htm" onchange="handleFileUpload(event)">
+                </div>
+                <div id="uploadStatus" style="display: none; margin-top: 15px; padding: 10px; border-radius: 5px;"></div>
+                <div id="extractedInfo" style="display: none; margin-top: 15px; padding: 15px; background: #e7f3ff; border-radius: 5px; border-left: 4px solid #2196F3;">
+                    <h4 style="margin-bottom: 10px; color: #1976D2;">Extracted Information Preview</h4>
+                    <div id="extractedContent"></div>
+                    <button class="btn-success" style="margin-top: 10px;" onclick="applyExtractedData()">✓ Apply to Form</button>
+                </div>
             </div>
 
             <!-- Personal Information Section -->
@@ -863,6 +889,344 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
         window.addEventListener('DOMContentLoaded', () => {
             console.log('Credit Report Input Tool loaded');
         });
+
+        // File Upload and Parsing Functions
+        let extractedData = {};
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#fff3cd';
+            statusDiv.style.border = '1px solid #ffc107';
+            statusDiv.style.color = '#856404';
+            statusDiv.innerHTML = '⏳ Processing file: ' + file.name + '...';
+
+            try {
+                let text = '';
+                
+                if (file.type === 'application/pdf') {
+                    text = await extractTextFromPDF(file);
+                } else if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                    text = await file.text();
+                } else if (file.type === 'text/html' || file.name.endsWith('.html') || file.name.endsWith('.htm')) {
+                    const htmlText = await file.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    text = doc.body.textContent || doc.body.innerText || '';
+                } else {
+                    throw new Error('Unsupported file format. Please upload PDF, TXT, or HTML file.');
+                }
+
+                // Parse the extracted text
+                extractedData = parseNexisLexisReport(text);
+
+                // Display extracted information
+                displayExtractedData(extractedData);
+
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.border = '1px solid #c3e6cb';
+                statusDiv.style.color = '#155724';
+                statusDiv.innerHTML = '✓ File processed successfully! Review the extracted information below.';
+            } catch (error) {
+                console.error('Error processing file:', error);
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.border = '1px solid #f5c6cb';
+                statusDiv.style.color = '#721c24';
+                statusDiv.innerHTML = '✗ Error processing file: ' + error.message;
+            }
+        }
+
+        async function extractTextFromPDF(file) {
+            // For PDF files, we'll use a simple text extraction approach
+            // In a production environment, you'd use PDF.js or similar library
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const arrayBuffer = e.target.result;
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    
+                    // Simple text extraction from PDF (looks for text between parentheses)
+                    // This is a basic approach; for better results, use PDF.js library
+                    let text = '';
+                    let inText = false;
+                    let currentChar = '';
+                    
+                    for (let i = 0; i < uint8Array.length; i++) {
+                        const char = String.fromCharCode(uint8Array[i]);
+                        if (char === '(' && uint8Array[i-1] !== 92) { // 92 is backslash
+                            inText = true;
+                            continue;
+                        }
+                        if (char === ')' && uint8Array[i-1] !== 92) {
+                            inText = false;
+                            text += ' ';
+                            continue;
+                        }
+                        if (inText && char >= ' ' && char <= '~') {
+                            text += char;
+                        }
+                    }
+                    
+                    if (text.length < 100) {
+                        // Fallback: try to extract readable ASCII text
+                        text = '';
+                        for (let i = 0; i < uint8Array.length; i++) {
+                            const char = String.fromCharCode(uint8Array[i]);
+                            if (char >= ' ' && char <= '~') {
+                                text += char;
+                            } else if (char === '\n' || char === '\r') {
+                                text += ' ';
+                            }
+                        }
+                    }
+                    
+                    resolve(text);
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function parseNexisLexisReport(text) {
+            const data = {
+                personalInfo: {},
+                tradelines: [],
+                inquiries: [],
+                publicRecords: []
+            };
+
+            // Extract personal information
+            const nameMatch = text.match(/(?:Name|Consumer Name|Full Name)[:\s]+([A-Z][a-z]+(?: [A-Z][a-z]+)+)/i);
+            if (nameMatch) data.personalInfo.name = nameMatch[1];
+
+            const addressMatch = text.match(/(?:Address|Current Address)[:\s]+([0-9]+ [A-Za-z0-9\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln)[A-Za-z0-9\s,]+[A-Z]{2}\s+\d{5})/i);
+            if (addressMatch) data.personalInfo.address = addressMatch[1];
+
+            const ssnMatch = text.match(/(?:SSN|Social Security)[:\s]*(?:XXX-XX-|\*\*\*-\*\*-)(\d{4})/i);
+            if (ssnMatch) data.personalInfo.ssn = ssnMatch[1];
+
+            const dobMatch = text.match(/(?:Date of Birth|DOB|Birth Date)[:\s]+(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i);
+            if (dobMatch) data.personalInfo.dob = dobMatch[1];
+
+            // Extract date of report
+            const reportDateMatch = text.match(/(?:Report Date|Date|As of)[:\s]+(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i);
+            if (reportDateMatch) data.personalInfo.reportDate = reportDateMatch[1];
+
+            // Parse tradelines/accounts
+            const accountPattern = /(?:Creditor|Account|Tradeline)[:\s]*([A-Za-z0-9\s&]+?)[\s\n]+(?:Account|Acct)[#:\s]*[X\*]*(\d{4})[\s\n]+(?:Balance|Bal)[:\s]*\$?([\d,]+\.?\d*)/gi;
+            let accountMatch;
+            while ((accountMatch = accountPattern.exec(text)) !== null) {
+                data.tradelines.push({
+                    creditor: accountMatch[1].trim(),
+                    account: accountMatch[2],
+                    balance: accountMatch[3].replace(/,/g, '')
+                });
+            }
+
+            // Parse public records (judgments, liens, etc.)
+            const publicRecordPattern = /(?:Judgment|Lien|Bankruptcy|Public Record)[:\s]*([^\n]+)[\s\n]+(?:Filed|Date|Filing)[:\s]*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})?[\s\n]*(?:Case|File|Docket)[#:\s]*([A-Z0-9-]+)?/gi;
+            let recordMatch;
+            while ((recordMatch = publicRecordPattern.exec(text)) !== null) {
+                data.publicRecords.push({
+                    type: recordMatch[0].split(':')[0].trim(),
+                    details: recordMatch[1].trim(),
+                    date: recordMatch[2] || '',
+                    caseNumber: recordMatch[3] || ''
+                });
+            }
+
+            // Parse inquiries
+            const inquiryPattern = /(?:Inquiry|Credit Check|Pull)[:\s]*([A-Za-z0-9\s&]+)[\s\n]+(?:Date)[:\s]*(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/gi;
+            let inquiryMatch;
+            while ((inquiryMatch = inquiryPattern.exec(text)) !== null) {
+                data.inquiries.push({
+                    company: inquiryMatch[1].trim(),
+                    date: inquiryMatch[2]
+                });
+            }
+
+            return data;
+        }
+
+        function displayExtractedData(data) {
+            const container = document.getElementById('extractedContent');
+            const infoDiv = document.getElementById('extractedInfo');
+            
+            let html = '<ul style="margin: 0; padding-left: 20px;">';
+            
+            if (data.personalInfo.name) {
+                html += `<li><strong>Name:</strong> ${data.personalInfo.name}</li>`;
+            }
+            if (data.personalInfo.address) {
+                html += `<li><strong>Address:</strong> ${data.personalInfo.address}</li>`;
+            }
+            if (data.personalInfo.ssn) {
+                html += `<li><strong>SSN (Last 4):</strong> ${data.personalInfo.ssn}</li>`;
+            }
+            if (data.personalInfo.dob) {
+                html += `<li><strong>Date of Birth:</strong> ${data.personalInfo.dob}</li>`;
+            }
+            if (data.personalInfo.reportDate) {
+                html += `<li><strong>Report Date:</strong> ${data.personalInfo.reportDate}</li>`;
+            }
+            
+            if (data.tradelines.length > 0) {
+                html += `<li><strong>Tradelines Found:</strong> ${data.tradelines.length}</li>`;
+            }
+            if (data.inquiries.length > 0) {
+                html += `<li><strong>Inquiries Found:</strong> ${data.inquiries.length}</li>`;
+            }
+            if (data.publicRecords.length > 0) {
+                html += `<li><strong>Public Records Found:</strong> ${data.publicRecords.length}</li>`;
+            }
+            
+            html += '</ul>';
+            
+            if (!data.personalInfo.name && data.tradelines.length === 0 && data.inquiries.length === 0 && data.publicRecords.length === 0) {
+                html = '<p style="color: #856404;">⚠️ Could not extract structured data automatically. The file format may not be recognized. You can still fill out the form manually.</p>';
+            }
+            
+            container.innerHTML = html;
+            infoDiv.style.display = 'block';
+        }
+
+        function applyExtractedData() {
+            // Apply personal information
+            if (extractedData.personalInfo.name) {
+                document.getElementById('fullName').value = extractedData.personalInfo.name;
+            }
+            if (extractedData.personalInfo.address) {
+                document.getElementById('address').value = extractedData.personalInfo.address;
+            }
+            if (extractedData.personalInfo.ssn) {
+                document.getElementById('ssn').value = extractedData.personalInfo.ssn;
+            }
+            if (extractedData.personalInfo.dob) {
+                // Convert date format if needed
+                let dobValue = extractedData.personalInfo.dob;
+                // Try to convert to YYYY-MM-DD format
+                const dateFormats = [
+                    /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,  // MM/DD/YYYY or DD/MM/YYYY
+                    /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/   // YYYY/MM/DD
+                ];
+                for (let pattern of dateFormats) {
+                    const match = dobValue.match(pattern);
+                    if (match) {
+                        if (match[1].length === 4) {
+                            // YYYY-MM-DD
+                            dobValue = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+                        } else {
+                            // Assume MM-DD-YYYY
+                            dobValue = `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
+                        }
+                        break;
+                    }
+                }
+                document.getElementById('dob').value = dobValue;
+            }
+            if (extractedData.personalInfo.reportDate) {
+                let reportDateValue = extractedData.personalInfo.reportDate;
+                // Convert date format if needed (same logic as DOB)
+                const dateFormats = [
+                    /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,
+                    /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
+                ];
+                for (let pattern of dateFormats) {
+                    const match = reportDateValue.match(pattern);
+                    if (match) {
+                        if (match[1].length === 4) {
+                            reportDateValue = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+                        } else {
+                            reportDateValue = `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
+                        }
+                        break;
+                    }
+                }
+                document.getElementById('reportDate').value = reportDateValue;
+            }
+
+            // Apply tradelines
+            extractedData.tradelines.forEach(tradeline => {
+                addTradeline();
+                const entries = document.querySelectorAll('.tradeline-entry');
+                const entry = entries[entries.length - 1];
+                if (tradeline.creditor) entry.querySelector('.tradeline-creditor').value = tradeline.creditor;
+                if (tradeline.account) entry.querySelector('.tradeline-account').value = tradeline.account;
+                if (tradeline.balance) entry.querySelector('.tradeline-balance').value = tradeline.balance;
+            });
+
+            // Apply inquiries
+            extractedData.inquiries.forEach(inquiry => {
+                addInquiry();
+                const entries = document.querySelectorAll('.inquiry-entry');
+                const entry = entries[entries.length - 1];
+                if (inquiry.company) entry.querySelector('.inquiry-company').value = inquiry.company;
+                if (inquiry.date) {
+                    let dateValue = inquiry.date;
+                    const dateFormats = [
+                        /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,
+                        /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
+                    ];
+                    for (let pattern of dateFormats) {
+                        const match = dateValue.match(pattern);
+                        if (match) {
+                            if (match[1].length === 4) {
+                                dateValue = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+                            } else {
+                                dateValue = `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
+                            }
+                            break;
+                        }
+                    }
+                    entry.querySelector('.inquiry-date').value = dateValue;
+                }
+            });
+
+            // Apply public records
+            extractedData.publicRecords.forEach(record => {
+                addPublicRecord();
+                const entries = document.querySelectorAll('.public-record-entry');
+                const entry = entries[entries.length - 1];
+                if (record.type) {
+                    const typeSelect = entry.querySelector('.record-type');
+                    // Try to match the type
+                    const type = record.type.toLowerCase();
+                    if (type.includes('judgment')) typeSelect.value = 'Judgment';
+                    else if (type.includes('lien')) typeSelect.value = 'Lien';
+                    else if (type.includes('bankruptcy')) typeSelect.value = 'Bankruptcy';
+                    else if (type.includes('foreclosure')) typeSelect.value = 'Foreclosure';
+                }
+                if (record.date) {
+                    let dateValue = record.date;
+                    const dateFormats = [
+                        /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,
+                        /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
+                    ];
+                    for (let pattern of dateFormats) {
+                        const match = dateValue.match(pattern);
+                        if (match) {
+                            if (match[1].length === 4) {
+                                dateValue = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+                            } else {
+                                dateValue = `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
+                            }
+                            break;
+                        }
+                    }
+                    entry.querySelector('.record-date').value = dateValue;
+                }
+                if (record.caseNumber) entry.querySelector('.record-case-number').value = record.caseNumber;
+                if (record.details) entry.querySelector('.record-notes').value = record.details;
+            });
+
+            alert('✓ Extracted data has been applied to the form! Please review and adjust as needed.');
+            
+            // Scroll to personal information section
+            document.querySelector('.section h2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     </script>
 </body>
 </html>
