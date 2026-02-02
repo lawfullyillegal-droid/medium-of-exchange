@@ -892,6 +892,32 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
 
         // File Upload and Parsing Functions
         let extractedData = {};
+        const MIN_EXTRACTED_TEXT_LENGTH = 100;
+
+        // Helper function to normalize date formats to YYYY-MM-DD
+        function normalizeDateFormat(dateString) {
+            if (!dateString) return '';
+            
+            // Try to convert to YYYY-MM-DD format
+            const dateFormats = [
+                /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,  // MM/DD/YYYY format (US Nexis Lexis standard)
+                /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/   // YYYY/MM/DD format
+            ];
+            
+            for (let pattern of dateFormats) {
+                const match = dateString.match(pattern);
+                if (match) {
+                    if (match[1].length === 4) {
+                        // YYYY-MM-DD format
+                        return `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+                    } else {
+                        // Assume MM-DD-YYYY format (US standard for Nexis Lexis)
+                        return `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
+                    }
+                }
+            }
+            return dateString; // Return original if no pattern matches
+        }
 
         async function handleFileUpload(event) {
             const file = event.target.files[0];
@@ -940,8 +966,9 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
         }
 
         async function extractTextFromPDF(file) {
-            // For PDF files, we'll use a simple text extraction approach
-            // In a production environment, you'd use PDF.js or similar library
+            // Basic PDF text extraction for simple PDF reports
+            // Note: This is a lightweight approach suitable for text-based PDFs.
+            // For complex PDFs with images or special formatting, consider using PDF.js library.
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -949,7 +976,6 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
                     const uint8Array = new Uint8Array(arrayBuffer);
                     
                     // Simple text extraction from PDF (looks for text between parentheses)
-                    // This is a basic approach; for better results, use PDF.js library
                     let text = '';
                     let inText = false;
                     let currentChar = '';
@@ -970,7 +996,7 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
                         }
                     }
                     
-                    if (text.length < 100) {
+                    if (text.length < MIN_EXTRACTED_TEXT_LENGTH) {
                         // Fallback: try to extract readable ASCII text
                         text = '';
                         for (let i = 0; i < uint8Array.length; i++) {
@@ -1105,47 +1131,10 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
                 document.getElementById('ssn').value = extractedData.personalInfo.ssn;
             }
             if (extractedData.personalInfo.dob) {
-                // Convert date format if needed
-                let dobValue = extractedData.personalInfo.dob;
-                // Try to convert to YYYY-MM-DD format
-                const dateFormats = [
-                    /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,  // MM/DD/YYYY or DD/MM/YYYY
-                    /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/   // YYYY/MM/DD
-                ];
-                for (let pattern of dateFormats) {
-                    const match = dobValue.match(pattern);
-                    if (match) {
-                        if (match[1].length === 4) {
-                            // YYYY-MM-DD
-                            dobValue = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
-                        } else {
-                            // Assume MM-DD-YYYY
-                            dobValue = `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
-                        }
-                        break;
-                    }
-                }
-                document.getElementById('dob').value = dobValue;
+                document.getElementById('dob').value = normalizeDateFormat(extractedData.personalInfo.dob);
             }
             if (extractedData.personalInfo.reportDate) {
-                let reportDateValue = extractedData.personalInfo.reportDate;
-                // Convert date format if needed (same logic as DOB)
-                const dateFormats = [
-                    /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,
-                    /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
-                ];
-                for (let pattern of dateFormats) {
-                    const match = reportDateValue.match(pattern);
-                    if (match) {
-                        if (match[1].length === 4) {
-                            reportDateValue = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
-                        } else {
-                            reportDateValue = `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
-                        }
-                        break;
-                    }
-                }
-                document.getElementById('reportDate').value = reportDateValue;
+                document.getElementById('reportDate').value = normalizeDateFormat(extractedData.personalInfo.reportDate);
             }
 
             // Apply tradelines
@@ -1165,23 +1154,7 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
                 const entry = entries[entries.length - 1];
                 if (inquiry.company) entry.querySelector('.inquiry-company').value = inquiry.company;
                 if (inquiry.date) {
-                    let dateValue = inquiry.date;
-                    const dateFormats = [
-                        /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,
-                        /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
-                    ];
-                    for (let pattern of dateFormats) {
-                        const match = dateValue.match(pattern);
-                        if (match) {
-                            if (match[1].length === 4) {
-                                dateValue = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
-                            } else {
-                                dateValue = `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
-                            }
-                            break;
-                        }
-                    }
-                    entry.querySelector('.inquiry-date').value = dateValue;
+                    entry.querySelector('.inquiry-date').value = normalizeDateFormat(inquiry.date);
                 }
             });
 
@@ -1200,23 +1173,7 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
                     else if (type.includes('foreclosure')) typeSelect.value = 'Foreclosure';
                 }
                 if (record.date) {
-                    let dateValue = record.date;
-                    const dateFormats = [
-                        /(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/,
-                        /(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/
-                    ];
-                    for (let pattern of dateFormats) {
-                        const match = dateValue.match(pattern);
-                        if (match) {
-                            if (match[1].length === 4) {
-                                dateValue = `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
-                            } else {
-                                dateValue = `${match[3]}-${match[1].padStart(2, '0')}-${match[2].padStart(2, '0')}`;
-                            }
-                            break;
-                        }
-                    }
-                    entry.querySelector('.record-date').value = dateValue;
+                    entry.querySelector('.record-date').value = normalizeDateFormat(record.date);
                 }
                 if (record.caseNumber) entry.querySelector('.record-case-number').value = record.caseNumber;
                 if (record.details) entry.querySelector('.record-notes').value = record.details;
@@ -1225,7 +1182,10 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
             alert('✓ Extracted data has been applied to the form! Please review and adjust as needed.');
             
             // Scroll to personal information section
-            document.querySelector('.section h2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const personalInfoField = document.getElementById('fullName');
+            if (personalInfoField) {
+                personalInfoField.closest('.section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
     </script>
 </body>

@@ -100,17 +100,6 @@ Enter or verify:
 
 ### Step 4: Add or Edit Tradelines
 
-For each account on your credit report that you want to dispute or track:
-- Creditor name
-- Account number (last 4 digits)
-- Account type (credit card, mortgage, collection, etc.)
-- Current balance
-- Account status
-- Date opened
-- Reason for dispute
-
-### Step 4: Add or Edit Tradelines
-
 For each account on your credit report that you want to dispute or track (these may be auto-populated from upload):
 - Creditor name
 - Account number (last 4 digits)
