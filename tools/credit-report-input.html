@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Report & Lexis Nexis Input Tool - Medium of Exchange</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px;
+        }
+        .nav-links {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 15px;
+            font-weight: 500;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .section h2 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .help-text {
+            font-size: 0.85em;
+            color: #666;
+            font-style: italic;
+            margin-top: 3px;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn-success {
+            background: #2ea44f;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #2c974b;
+        }
+        .output-section {
+            margin-top: 30px;
+            padding: 30px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            display: none;
+        }
+        .output-section.active {
+            display: block;
+        }
+        .output-section h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        .output-content {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .tradeline-entry,
+        .inquiry-entry,
+        .public-record-entry {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .entry-title {
+            font-weight: 600;
+            color: #1e3c72;
+        }
+        .remove-btn {
+            padding: 5px 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .remove-btn:hover {
+            background: #c82333;
+        }
+        .add-entry-btn {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .add-entry-btn:hover {
+            background: #218838;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .alert h4 {
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .content { padding: 20px; }
+            .section { padding: 15px; }
+            header { padding: 20px; }
+            header h1 { font-size: 1.5em; }
+            .form-grid { grid-template-columns: 1fr; }
+            .button-group { flex-direction: column; }
+            button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Credit Report & Lexis Nexis Input Tool</h1>
+            <p>Document credit reports and public records for instrument generation</p>
+        </header>
+
+        <div class="content">
+            <div class="nav-links">
+                <a href="../index.html">← Back to Home</a>
+                <a href="promissory-note-generator.html">Instrument Generator</a>
+            </div>
+
+            <div class="alert">
+                <h4>📋 Purpose of This Tool</h4>
+                <p>Use this tool to input information from your Lexis Nexis and credit reports. This data will be used to:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Document tradelines that may be subject to dispute under FCRA</li>
+                    <li>Record public records from Lexis Nexis for validation requests</li>
+                    <li>Generate negotiable instruments demanding validation or disputing inaccuracies</li>
+                    <li>Create a record system for FDCPA and FCRA compliance tracking</li>
+                </ul>
+            </div>
+
+            <!-- Personal Information Section -->
+            <div class="section">
+                <h2>👤 Personal Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fullName">Full Legal Name *</label>
+                        <input type="text" id="fullName" placeholder="e.g., John Robert Anderson" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Current Address *</label>
+                        <input type="text" id="address" placeholder="Street, City, State, ZIP" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ssn">SSN (Last 4 digits) *</label>
+                        <input type="text" id="ssn" placeholder="XXXX" maxlength="4" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credit Report Information -->
+            <div class="section">
+                <h2>📄 Credit Report Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="reportDate">Report Date *</label>
+                        <input type="date" id="reportDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bureau">Credit Bureau *</label>
+                        <select id="bureau" required>
+                            <option value="">Select Bureau...</option>
+                            <option value="Experian">Experian</option>
+                            <option value="Equifax">Equifax</option>
+                            <option value="TransUnion">TransUnion</option>
+                            <option value="All Three">All Three Bureaus</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reportNumber">Report/File Number</label>
+                        <input type="text" id="reportNumber" placeholder="Credit report reference number">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tradelines Section -->
+            <div class="section">
+                <h2>💳 Tradelines (Credit Accounts)</h2>
+                <p style="margin-bottom: 15px; color: #666;">Add all tradelines from your credit report that you want to track or dispute.</p>
+                <div id="tradelines-container"></div>
+                <button class="add-entry-btn" onclick="addTradeline()">+ Add Tradeline</button>
+            </div>
+
+            <!-- Credit Inquiries Section -->
+            <div class="section">
+                <h2>🔍 Credit Inquiries</h2>
+                <p style="margin-bottom: 15px; color: #666;">Document hard inquiries that may affect your credit score.</p>
+                <div id="inquiries-container"></div>
+                <button class="add-entry-btn" onclick="addInquiry()">+ Add Inquiry</button>
+            </div>
+
+            <!-- Lexis Nexis / Public Records Section -->
+            <div class="section">
+                <h2>📚 Lexis Nexis / Public Records</h2>
+                <p style="margin-bottom: 15px; color: #666;">Add public records, judgments, liens, or other records from Lexis Nexis.</p>
+                <div id="public-records-container"></div>
+                <button class="add-entry-btn" onclick="addPublicRecord()">+ Add Public Record</button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="button-group">
+                <button class="btn-primary" onclick="generateInstrumentRecord()">📝 Generate Instrument Record</button>
+                <button class="btn-success" onclick="generateDisputeLetter()">✉️ Generate Dispute Letter Template</button>
+                <button class="btn-secondary" onclick="clearForm()">🔄 Clear Form</button>
+            </div>
+
+            <!-- Output Section -->
+            <div id="output" class="output-section">
+                <h3>Generated Output</h3>
+                <div class="button-group">
+                    <button class="btn-success" onclick="copyOutput()">📋 Copy to Clipboard</button>
+                    <button class="btn-primary" onclick="downloadOutput()">💾 Download as Markdown</button>
+                </div>
+                <div id="output-content" class="output-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tradelineCount = 0;
+        let inquiryCount = 0;
+        let publicRecordCount = 0;
+
+        function addTradeline() {
+            tradelineCount++;
+            const container = document.getElementById('tradelines-container');
+            const entry = document.createElement('div');
+            entry.className = 'tradeline-entry';
+            entry.id = `tradeline-${tradelineCount}`;
+            entry.innerHTML = `
+                <div class="entry-header">
+                    <span class="entry-title">Tradeline #${tradelineCount}</span>
+                    <button class="remove-btn" onclick="removeEntry('tradeline-${tradelineCount}')">Remove</button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Creditor Name</label>
+                        <input type="text" class="tradeline-creditor" placeholder="e.g., Bank of America">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Number (Last 4)</label>
+                        <input type="text" class="tradeline-account" placeholder="XXXX" maxlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label>Account Type</label>
+                        <select class="tradeline-type">
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Mortgage">Mortgage</option>
+                            <option value="Auto Loan">Auto Loan</option>
+                            <option value="Student Loan">Student Loan</option>
+                            <option value="Personal Loan">Personal Loan</option>
+                            <option value="Collection">Collection Account</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Balance</label>
+                        <input type="number" class="tradeline-balance" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="tradeline-status">
+                            <option value="Current">Current</option>
+                            <option value="Late 30 Days">Late 30 Days</option>
+                            <option value="Late 60 Days">Late 60 Days</option>
+                            <option value="Late 90 Days">Late 90 Days</option>
+                            <option value="Charge Off">Charge Off</option>
+                            <option value="Collection">Collection</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Opened Date</label>
+                        <input type="date" class="tradeline-opened">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Dispute Reason / Notes</label>
+                    <textarea class="tradeline-notes" placeholder="Describe why this entry is inaccurate or what needs validation..."></textarea>
+                </div>
+            `;
+            container.appendChild(entry);
+        }
+
+        function addInquiry() {
+            inquiryCount++;
+            const container = document.getElementById('inquiries-container');
+            const entry = document.createElement('div');
+            entry.className = 'inquiry-entry';
+            entry.id = `inquiry-${inquiryCount}`;
+            entry.innerHTML = `
+                <div class="entry-header">
+                    <span class="entry-title">Inquiry #${inquiryCount}</span>
+                    <button class="remove-btn" onclick="removeEntry('inquiry-${inquiryCount}')">Remove</button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" class="inquiry-company" placeholder="e.g., Wells Fargo">
+                    </div>
+                    <div class="form-group">
+                        <label>Inquiry Date</label>
+                        <input type="date" class="inquiry-date">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select class="inquiry-type">
+                            <option value="Hard Inquiry">Hard Inquiry</option>
+                            <option value="Soft Inquiry">Soft Inquiry</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Dispute Reason / Notes</label>
+                    <textarea class="inquiry-notes" placeholder="Was this inquiry unauthorized? Provide details..."></textarea>
+                </div>
+            `;
+            container.appendChild(entry);
+        }
+
+        function addPublicRecord() {
+            publicRecordCount++;
+            const container = document.getElementById('public-records-container');
+            const entry = document.createElement('div');
+            entry.className = 'public-record-entry';
+            entry.id = `public-record-${publicRecordCount}`;
+            entry.innerHTML = `
+                <div class="entry-header">
+                    <span class="entry-title">Public Record #${publicRecordCount}</span>
+                    <button class="remove-btn" onclick="removeEntry('public-record-${publicRecordCount}')">Remove</button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Record Type</label>
+                        <select class="record-type">
+                            <option value="Judgment">Judgment</option>
+                            <option value="Lien">Tax Lien</option>
+                            <option value="Bankruptcy">Bankruptcy</option>
+                            <option value="Foreclosure">Foreclosure</option>
+                            <option value="Criminal Record">Criminal Record</option>
+                            <option value="Civil Case">Civil Case</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Filing Date</label>
+                        <input type="date" class="record-date">
+                    </div>
+                    <div class="form-group">
+                        <label>Case/File Number</label>
+                        <input type="text" class="record-case-number" placeholder="e.g., CV-2023-12345">
+                    </div>
+                    <div class="form-group">
+                        <label>Jurisdiction/Court</label>
+                        <input type="text" class="record-jurisdiction" placeholder="e.g., Superior Court, Maricopa County">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (if applicable)</label>
+                        <input type="number" class="record-amount" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="record-status">
+                            <option value="Active">Active</option>
+                            <option value="Satisfied">Satisfied</option>
+                            <option value="Dismissed">Dismissed</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Details / Dispute Reason</label>
+                    <textarea class="record-notes" placeholder="Describe the record and any inaccuracies or validation issues..."></textarea>
+                </div>
+            `;
+            container.appendChild(entry);
+        }
+
+        function removeEntry(entryId) {
+            const entry = document.getElementById(entryId);
+            if (entry) {
+                entry.remove();
+            }
+        }
+
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all form data?')) {
+                document.querySelectorAll('input, textarea, select').forEach(el => {
+                    if (el.type === 'checkbox') {
+                        el.checked = false;
+                    } else {
+                        el.value = '';
+                    }
+                });
+                document.getElementById('tradelines-container').innerHTML = '';
+                document.getElementById('inquiries-container').innerHTML = '';
+                document.getElementById('public-records-container').innerHTML = '';
+                tradelineCount = 0;
+                inquiryCount = 0;
+                publicRecordCount = 0;
+                document.getElementById('output').classList.remove('active');
+            }
+        }
+
+        function generateInstrumentRecord() {
+            const fullName = document.getElementById('fullName').value;
+            const address = document.getElementById('address').value;
+            const ssn = document.getElementById('ssn').value;
+            const dob = document.getElementById('dob').value;
+            const reportDate = document.getElementById('reportDate').value;
+            const bureau = document.getElementById('bureau').value;
+            const reportNumber = document.getElementById('reportNumber').value;
+
+            if (!fullName || !address || !ssn || !reportDate || !bureau) {
+                alert('Please fill in all required fields (marked with *)');
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const year = new Date().getFullYear();
+            const instrumentId = `CR-${year}-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+
+            let markdown = `# Credit Report Dispute Instrument Record
+
+## Instrument Identification
+
+**Instrument ID**: ${instrumentId}
+**Instrument Type**: ✓ Validation Request / Dispute Notice
+**Date Created**: ${today}
+**Date Recorded**: ${today}
+**Status**: Active - Pending Response
+
+---
+
+## Subject Information
+
+**Name**: ${fullName}
+**Address**: ${address}
+**SSN (Last 4)**: ${ssn}
+${dob ? `**Date of Birth**: ${dob}` : ''}
+
+---
+
+## Credit Report Details
+
+**Report Date**: ${reportDate}
+**Bureau**: ${bureau}
+${reportNumber ? `**Report/File Number**: ${reportNumber}` : ''}
+
+---
+
+## Tradelines Under Dispute
+
+`;
+
+            // Add tradelines
+            const tradelines = document.querySelectorAll('.tradeline-entry');
+            if (tradelines.length === 0) {
+                markdown += '*No tradelines added*\n\n';
+            } else {
+                tradelines.forEach((entry, index) => {
+                    const creditor = entry.querySelector('.tradeline-creditor').value;
+                    const account = entry.querySelector('.tradeline-account').value;
+                    const type = entry.querySelector('.tradeline-type').value;
+                    const balance = entry.querySelector('.tradeline-balance').value;
+                    const status = entry.querySelector('.tradeline-status').value;
+                    const opened = entry.querySelector('.tradeline-opened').value;
+                    const notes = entry.querySelector('.tradeline-notes').value;
+
+                    markdown += `### Tradeline ${index + 1}: ${creditor || 'Unknown Creditor'}
+
+- **Creditor**: ${creditor || 'N/A'}
+- **Account Number**: XXXX-${account || 'XXXX'}
+- **Type**: ${type}
+- **Balance**: $${balance || '0.00'}
+- **Status**: ${status}
+${opened ? `- **Opened**: ${opened}` : ''}
+- **Dispute Reason**: ${notes || 'Not specified'}
+
+**UCC Article 3 Position**: Requesting validation of debt per 15 USC § 1692g and proof of negotiable instrument transferring right to collect. Creditor must provide:
+1. Original signed promissory note or negotiable instrument
+2. Chain of custody showing valid transfer per UCC § 3-203
+3. Proof of Holder in Due Course status per UCC § 3-302
+4. Evidence of consideration given for instrument
+
+---
+
+`;
+                });
+            }
+
+            markdown += `## Credit Inquiries
+
+`;
+
+            // Add inquiries
+            const inquiries = document.querySelectorAll('.inquiry-entry');
+            if (inquiries.length === 0) {
+                markdown += '*No inquiries added*\n\n';
+            } else {
+                inquiries.forEach((entry, index) => {
+                    const company = entry.querySelector('.inquiry-company').value;
+                    const date = entry.querySelector('.inquiry-date').value;
+                    const type = entry.querySelector('.inquiry-type').value;
+                    const notes = entry.querySelector('.inquiry-notes').value;
+
+                    markdown += `### Inquiry ${index + 1}: ${company || 'Unknown Company'}
+
+- **Company**: ${company || 'N/A'}
+- **Date**: ${date || 'N/A'}
+- **Type**: ${type}
+- **Dispute Reason**: ${notes || 'Not specified'}
+
+**FCRA Position**: Per 15 USC § 1681b, written consent required for hard inquiry. Requesting proof of permissible purpose and signed authorization.
+
+---
+
+`;
+                });
+            }
+
+            markdown += `## Public Records (Lexis Nexis)
+
+`;
+
+            // Add public records
+            const publicRecords = document.querySelectorAll('.public-record-entry');
+            if (publicRecords.length === 0) {
+                markdown += '*No public records added*\n\n';
+            } else {
+                publicRecords.forEach((entry, index) => {
+                    const type = entry.querySelector('.record-type').value;
+                    const date = entry.querySelector('.record-date').value;
+                    const caseNumber = entry.querySelector('.record-case-number').value;
+                    const jurisdiction = entry.querySelector('.record-jurisdiction').value;
+                    const amount = entry.querySelector('.record-amount').value;
+                    const status = entry.querySelector('.record-status').value;
+                    const notes = entry.querySelector('.record-notes').value;
+
+                    markdown += `### Public Record ${index + 1}: ${type}
+
+- **Type**: ${type}
+- **Filing Date**: ${date || 'N/A'}
+- **Case/File Number**: ${caseNumber || 'N/A'}
+- **Jurisdiction**: ${jurisdiction || 'N/A'}
+${amount ? `- **Amount**: $${amount}` : ''}
+- **Status**: ${status}
+- **Details**: ${notes || 'Not specified'}
+
+**Validation Request**: Requesting certified court documents and proof of proper service per applicable rules of civil procedure.
+
+---
+
+`;
+                });
+            }
+
+            markdown += `## Legal Position & Next Steps
+
+### Statutory Framework
+- **Fair Credit Reporting Act (FCRA)**: 15 USC § 1681 et seq.
+- **Fair Debt Collection Practices Act (FDCPA)**: 15 USC § 1692 et seq.
+- **UCC Article 3**: Negotiable Instruments
+- **UCC § 3-104**: Requirements for negotiable instrument
+- **UCC § 3-302**: Holder in Due Course status
+
+### Validation Requirements
+1. **Original Instrument**: Signed promissory note or other negotiable instrument per UCC § 3-104
+2. **Chain of Custody**: Proper endorsement and transfer per UCC § 3-203
+3. **Standing**: Proof of Holder in Due Course status per UCC § 3-302
+4. **Authorization**: Written consent for credit inquiries per 15 USC § 1681b
+5. **Accuracy**: Verification of all reported information per 15 USC § 1681i
+
+### Action Timeline
+- **Day 0**: ${today} - Instrument created and recorded
+- **Day 1-7**: Send validation request letters to all parties
+- **Day 30**: Deadline for creditor response per 15 USC § 1692g
+- **Day 45**: Follow-up if no response; escalate to CFPB complaint
+- **Day 60**: Legal action consideration if violations persist
+
+### Documentation Required
+- Certified mail receipts for all correspondence
+- Copies of all credit reports
+- Collection letters or communications
+- Response letters from creditors/bureaus
+- Evidence of statutory violations
+
+---
+
+## Document Management
+
+**Original Location**: Digital system records
+**Related Documents**: 
+- [ ] Credit report(s) - ${bureau}
+- [ ] Validation request letters
+- [ ] Certified mail receipts
+- [ ] Response letters
+- [ ] CFPB complaint (if filed)
+
+**Last Updated**: ${today}
+**Updated By**: ${fullName}
+
+---
+
+*This record documents credit report disputes and validation requests per FCRA, FDCPA, and UCC Article 3. It serves as evidence of compliance with statutory notice requirements and establishes a documented record for potential legal action.*
+`;
+
+            document.getElementById('output-content').textContent = markdown;
+            document.getElementById('output').classList.add('active');
+            document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateDisputeLetter() {
+            const fullName = document.getElementById('fullName').value;
+            const address = document.getElementById('address').value;
+            const ssn = document.getElementById('ssn').value;
+            const bureau = document.getElementById('bureau').value;
+
+            if (!fullName || !address || !bureau) {
+                alert('Please fill in required personal information and select a bureau');
+                return;
+            }
+
+            const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            let bureauAddress = '';
+            if (bureau === 'Experian' || bureau === 'All Three') {
+                bureauAddress = 'Experian\nP.O. Box 4500\nAllen, TX 75013';
+            } else if (bureau === 'Equifax') {
+                bureauAddress = 'Equifax Information Services LLC\nP.O. Box 740256\nAtlanta, GA 30374';
+            } else if (bureau === 'TransUnion') {
+                bureauAddress = 'TransUnion LLC\nP.O. Box 2000\nChester, PA 19016';
+            }
+
+            const letter = `${fullName}
+${address}
+
+${today}
+
+${bureauAddress}
+
+RE: Dispute and Validation Request - SSN: XXX-XX-${ssn}
+
+To Whom It May Concern:
+
+Pursuant to the Fair Credit Reporting Act (FCRA), 15 USC § 1681 et seq., and my rights under the Uniform Commercial Code (UCC) Article 3, I am writing to dispute certain items on my credit report and demand validation of alleged debts.
+
+I am exercising my rights under:
+- 15 USC § 1681i (Procedure in case of disputed accuracy)
+- 15 USC § 1692g (Validation of debts)
+- UCC § 3-501 through § 3-505 (Presentment, Dishonor, and Notice)
+
+I dispute the following items that appear on my credit report dated [INSERT DATE]:
+
+[LIST EACH DISPUTED TRADELINE, INQUIRY, OR PUBLIC RECORD HERE]
+
+For each disputed item, I demand the following under UCC Article 3 and FCRA:
+
+1. **Original Negotiable Instrument**: Provide the original signed promissory note, check, or other negotiable instrument per UCC § 3-104.
+
+2. **Chain of Custody**: Demonstrate proper endorsement and transfer of the instrument per UCC § 3-203, showing unbroken chain from original payee to current alleged creditor.
+
+3. **Holder in Due Course Status**: Prove that the current holder meets all requirements of UCC § 3-302:
+   - Instrument taken for value
+   - Taken in good faith
+   - Taken without notice of dishonor, defenses, or claims
+
+4. **Verification of Accuracy**: Complete verification per 15 USC § 1681i(a) including independent verification from the original creditor.
+
+5. **Authorization for Inquiries**: For all hard inquiries, provide signed authorization per 15 USC § 1681b showing permissible purpose.
+
+If you cannot provide the above documentation within 30 days, I demand that these items be immediately removed from my credit report per 15 USC § 1681i(a)(5).
+
+Please send all correspondence regarding this matter to the address above. I request written confirmation of the results of your investigation.
+
+Under penalty of perjury under the laws of the United States of America, I declare that the foregoing is true and correct.
+
+Dated: ${today}
+
+
+_________________________________
+${fullName}
+
+---
+
+IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requested to establish proof of delivery. Keep copies of all correspondence for your records.
+`;
+
+            document.getElementById('output-content').textContent = letter;
+            document.getElementById('output').classList.add('active');
+            document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyOutput() {
+            const output = document.getElementById('output-content').textContent;
+            navigator.clipboard.writeText(output).then(() => {
+                alert('Content copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy: ' + err);
+            });
+        }
+
+        function downloadOutput() {
+            const output = document.getElementById('output-content').textContent;
+            const fullName = document.getElementById('fullName').value || 'record';
+            const today = new Date().toISOString().split('T')[0];
+            const filename = `credit-report-${fullName.replace(/\s+/g, '-').toLowerCase()}-${today}.md`;
+            
+            const blob = new Blob([output], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize with one of each entry type as examples
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Credit Report Input Tool loaded');
+        });
+    </script>
+</body>
+</html>
