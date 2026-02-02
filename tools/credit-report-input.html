@@ -982,11 +982,11 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
                     
                     for (let i = 0; i < uint8Array.length; i++) {
                         const char = String.fromCharCode(uint8Array[i]);
-                        if (char === '(' && uint8Array[i-1] !== 92) { // 92 is backslash
+                        if (char === '(' && (i === 0 || uint8Array[i-1] !== 92)) { // 92 is backslash
                             inText = true;
                             continue;
                         }
-                        if (char === ')' && uint8Array[i-1] !== 92) {
+                        if (char === ')' && (i === 0 || uint8Array[i-1] !== 92)) {
                             inText = false;
                             text += ' ';
                             continue;
@@ -1024,11 +1024,12 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
                 publicRecords: []
             };
 
-            // Extract personal information
-            const nameMatch = text.match(/(?:Name|Consumer Name|Full Name)[:\s]+([A-Z][a-z]+(?: [A-Z][a-z]+)+)/i);
+            // Extract personal information with flexible patterns
+            const nameMatch = text.match(/(?:Name|Consumer Name|Full Name)[:\s]+([A-Z][A-Za-z]+(?:[\s'-][A-Z][A-Za-z]+)*(?:\s+(?:Jr\.?|Sr\.?|III?|IV))?)/i);
             if (nameMatch) data.personalInfo.name = nameMatch[1];
 
-            const addressMatch = text.match(/(?:Address|Current Address)[:\s]+([0-9]+ [A-Za-z0-9\s,]+(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln)[A-Za-z0-9\s,]+[A-Z]{2}\s+\d{5})/i);
+            // Flexible address pattern - captures common address formats
+            const addressMatch = text.match(/(?:Address|Current Address)[:\s]+(\d+[A-Za-z]?\s+[A-Za-z0-9\s,#.''-]+,\s*[A-Z][A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?)/i);
             if (addressMatch) data.personalInfo.address = addressMatch[1];
 
             const ssnMatch = text.match(/(?:SSN|Social Security)[:\s]*(?:XXX-XX-|\*\*\*-\*\*-)(\d{4})/i);
@@ -1041,15 +1042,31 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
             const reportDateMatch = text.match(/(?:Report Date|Date|As of)[:\s]+(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4})/i);
             if (reportDateMatch) data.personalInfo.reportDate = reportDateMatch[1];
 
-            // Parse tradelines/accounts
-            const accountPattern = /(?:Creditor|Account|Tradeline)[:\s]*([A-Za-z0-9\s&]+?)[\s\n]+(?:Account|Acct)[#:\s]*[X\*]*(\d{4})[\s\n]+(?:Balance|Bal)[:\s]*\$?([\d,]+\.?\d*)/gi;
+            // Parse tradelines/accounts - flexible pattern that works with variations
+            // Pattern 1: Standard format with all fields
+            const accountPattern1 = /(?:Creditor|Account|Tradeline)[:\s]*([A-Za-z0-9\s&]+?)[\s\n]+(?:Account|Acct)[#:\s]*[X\*]*(\d{4})[\s\n]+(?:Balance|Bal)[:\s]*\$?([\d,]+\.?\d*)/gi;
             let accountMatch;
-            while ((accountMatch = accountPattern.exec(text)) !== null) {
+            while ((accountMatch = accountPattern1.exec(text)) !== null) {
                 data.tradelines.push({
                     creditor: accountMatch[1].trim(),
                     account: accountMatch[2],
                     balance: accountMatch[3].replace(/,/g, '')
                 });
+            }
+            
+            // Pattern 2: Simpler fallback for different formats (creditor and account only)
+            const accountPattern2 = /(?:Creditor)[:\s]+([A-Za-z0-9\s&]+?)[\s\n]+(?:Account)[:\s]*[X\*]*(\d{4})/gi;
+            while ((accountMatch = accountPattern2.exec(text)) !== null) {
+                // Only add if not already captured
+                const creditor = accountMatch[1].trim();
+                const account = accountMatch[2];
+                if (!data.tradelines.some(t => t.creditor === creditor && t.account === account)) {
+                    data.tradelines.push({
+                        creditor: creditor,
+                        account: account,
+                        balance: ''
+                    });
+                }
             }
 
             // Parse public records (judgments, liens, etc.)
@@ -1179,7 +1196,18 @@ IMPORTANT: Send this letter via USPS Certified Mail with Return Receipt Requeste
                 if (record.details) entry.querySelector('.record-notes').value = record.details;
             });
 
-            alert('✓ Extracted data has been applied to the form! Please review and adjust as needed.');
+            // Show success notification
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#d4edda';
+            statusDiv.style.border = '1px solid #c3e6cb';
+            statusDiv.style.color = '#155724';
+            statusDiv.innerHTML = '✓ Extracted data has been applied to the form! Please review and adjust as needed.';
+            
+            // Hide the notification after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
             
             // Scroll to personal information section
             const personalInfoField = document.getElementById('fullName');
